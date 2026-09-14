@@ -454,7 +454,7 @@ public class KeyStoreSslReport {
 		//
 		final boolean conditionA = or(field, Objects::isNull, f -> Narcissus.getField(a, f) != null);
 		//
-		final boolean conditionB = field == null || (b != null && Narcissus.getField(b, field) != null);
+		final boolean conditionB = field == null || and(field, Objects::nonNull, f -> Narcissus.getField(b, f) != null);
 		//
 		for (int i = 0; conditionA && i < StringUtils.length(a); i++) {
 			//
@@ -488,6 +488,10 @@ public class KeyStoreSslReport {
 			//
 		return conditionA ? StringUtils.substring(a, start, start + max) : null;
 		//
+	}
+
+	private static <T> boolean and(final T value, final Predicate<T> a, final Predicate<T> b) {
+		return test(a, value) && test(b, value);
 	}
 
 	private static <T> boolean or(final T value, final Predicate<T> a, final Predicate<T> b) {
