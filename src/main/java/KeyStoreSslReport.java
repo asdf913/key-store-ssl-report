@@ -42,6 +42,8 @@ import io.github.toolfactory.narcissus.Narcissus;
 
 public class KeyStoreSslReport {
 
+	private static final String VALUE = "value";
+
 	public static void main(final String[] args)
 			throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
 		//
@@ -136,7 +138,7 @@ public class KeyStoreSslReport {
 		if ((field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(alias), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "value")), Collectors.toList()),
+						f -> Objects.equals(getName(f), VALUE)), Collectors.toList()),
 				x -> get(x, 0), null)) != null && Narcissus.getField(alias, field) == null) {
 			//
 			return null;
@@ -171,7 +173,7 @@ public class KeyStoreSslReport {
 		if ((field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(alias), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "value")), Collectors.toList()),
+						f -> Objects.equals(getName(f), VALUE)), Collectors.toList()),
 				x -> get(x, 0), null)) != null && Narcissus.getField(alias, field) == null) {
 			//
 			return false;
@@ -206,7 +208,7 @@ public class KeyStoreSslReport {
 		if ((field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(alias), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "value")), Collectors.toList()),
+						f -> Objects.equals(getName(f), VALUE)), Collectors.toList()),
 				x -> get(x, 0), null)) != null && Narcissus.getField(alias, field) == null) {
 			//
 			return false;
@@ -273,7 +275,7 @@ public class KeyStoreSslReport {
 		if ((field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(domain), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "value")), Collectors.toList()),
+						f -> Objects.equals(getName(f), VALUE)), Collectors.toList()),
 				x -> get(x, 0), null)) != null && Narcissus.getField(domain, field) == null) {
 			//
 			return false;
@@ -352,7 +354,7 @@ public class KeyStoreSslReport {
 		final Field field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "value")), Collectors.toList()),
+						f -> Objects.equals(getName(f), VALUE)), Collectors.toList()),
 				x -> get(x, 0), null);
 		//
 		return field == null || Narcissus.getField(instance, field) != null ? instance.toCharArray() : null;
@@ -380,7 +382,7 @@ public class KeyStoreSslReport {
 				field = testAndApply(x -> size(x) == 1,
 						collect(filter(
 								stream(testAndApply(Objects::nonNull, getClass(s), FieldUtils::getAllFieldsList, null)),
-								f -> Objects.equals(getName(f), "value")), Collectors.toList()),
+								f -> Objects.equals(getName(f), VALUE)), Collectors.toList()),
 						x -> get(x, 0), null);
 				//
 			} // if
@@ -449,7 +451,7 @@ public class KeyStoreSslReport {
 		//
 		final Field field = testAndApply(x -> size(x) == 1,
 				collect(filter(stream(testAndApply(Objects::nonNull, getClass(a), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "value")), Collectors.toList()),
+						f -> Objects.equals(getName(f), VALUE)), Collectors.toList()),
 				x -> get(x, 0), null);
 		//
 		final boolean conditionA = or(field, Objects::isNull, f -> Narcissus.getField(a, f) != null);
