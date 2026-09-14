@@ -71,21 +71,18 @@ public class KeyStoreSslReport {
 			//
 			while (hasMoreElements(aliases)) {
 				//
-				if (isCertificateEntry(keystore, alias = nextElement(aliases)) || isKeyEntry(keystore, alias)) {
-					//
-					if ((certificate = getCertificate(keystore, alias)) instanceof X509Certificate
-							&& (x509Certificate = (X509Certificate) certificate) != null
-							&& isValid(DomainValidator.getInstance(),
-									lcs = longestCommonSubstring(getName(x509Certificate.getSubjectX500Principal()),
-											get(argumentMap, "url")))
-							&& !containsKey(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs)) {
+				if ((isCertificateEntry(keystore, alias = nextElement(aliases)) || isKeyEntry(keystore, alias))
+						&& (certificate = getCertificate(keystore, alias)) instanceof X509Certificate
+						&& (x509Certificate = (X509Certificate) certificate) != null
+						&& isValid(DomainValidator.getInstance(),
+								lcs = longestCommonSubstring(getName(x509Certificate.getSubjectX500Principal()),
+										get(argumentMap, "url")))
+						&& !containsKey(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs)) {
 						//
 						put(map, lcs, x509Certificate);
 						//
 					} // if
 						//
-				} // if
-					//
 			} // while
 				//
 			final String longest = orElse(max(stream(keySet(map)), Comparator.comparingInt(StringUtils::length)), "");
