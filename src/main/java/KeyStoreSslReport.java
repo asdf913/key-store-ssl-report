@@ -53,6 +53,8 @@ public class KeyStoreSslReport {
 
 	private static final String INITIALIZED = "initialized";
 
+	private static final String DELEGATE = "delegate";
+
 	public static void main(final String[] args)
 			throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
 		//
@@ -199,7 +201,7 @@ public class KeyStoreSslReport {
 		final Field field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "delegate")), Collectors.toList()),
+						f -> Objects.equals(getName(f), DELEGATE)), Collectors.toList()),
 				x -> get(x, 0), null);
 
 		//
@@ -222,7 +224,7 @@ public class KeyStoreSslReport {
 		final Field field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "delegate")), Collectors.toList()),
+						f -> Objects.equals(getName(f), DELEGATE)), Collectors.toList()),
 				x -> get(x, 0), null);
 
 		//
@@ -240,7 +242,7 @@ public class KeyStoreSslReport {
 		final Field field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "delegate")), Collectors.toList()),
+						f -> Objects.equals(getName(f), DELEGATE)), Collectors.toList()),
 				x -> get(x, 0), null);
 
 		//
