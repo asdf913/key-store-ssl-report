@@ -188,7 +188,7 @@ public class KeyStoreSslReport {
 		return instance != null ? instance.getNotAfter() : null;
 	}
 
-	private static void disconnect(final HttpsURLConnection instance) throws IOException {
+	private static void disconnect(final HttpsURLConnection instance) {
 		//
 		if (instance == null) {
 			//
