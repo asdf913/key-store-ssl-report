@@ -74,18 +74,15 @@ public class KeyStoreSslReport {
 				//
 				if (isCertificateEntry(keystore, alias = nextElement(aliases)) || isKeyEntry(keystore, alias)) {
 					//
-					if ((certificate = getCertificate(keystore, alias)) instanceof X509Certificate) {
+					if ((certificate = getCertificate(keystore, alias)) instanceof X509Certificate
+							&& (x509Certificate = (X509Certificate) certificate) != null
+							&& isValid(DomainValidator.getInstance(),
+									lcs = longestCommonSubstring(getName(x509Certificate.getSubjectX500Principal()),
+											get(argumentMap, "url")))
+							&& !containsKey(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs)) {
 						//
-						if ((x509Certificate = (X509Certificate) certificate) != null
-								&& isValid(DomainValidator.getInstance(),
-										lcs = longestCommonSubstring(getName(x509Certificate.getSubjectX500Principal()),
-												get(argumentMap, "url")))
-								&& !containsKey(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs)) {
-							//
-							put(map, lcs, x509Certificate);
-							//
-						} // if
-							//
+						put(map, lcs, x509Certificate);
+						//
 					} // if
 						//
 				} // if
