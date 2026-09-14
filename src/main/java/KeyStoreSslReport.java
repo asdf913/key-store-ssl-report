@@ -43,8 +43,8 @@ import io.github.toolfactory.narcissus.Narcissus;
 
 public class KeyStoreSslReport {
 
-	public static void main(final String[] args) throws KeyStoreException, IOException, NoSuchAlgorithmException,
-			CertificateException, UnrecoverableKeyException {
+	public static void main(final String[] args)
+			throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
 		//
 		final Map<String, String> argumentMap = toMap(args);
 		//
