@@ -33,6 +33,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.validator.routines.DomainValidator;
+import org.d2ab.function.ObjIntPredicate;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -116,7 +117,8 @@ public class KeyStoreSslReportTest {
 					//
 				} // if
 					//
-			} else if (proxy instanceof Predicate && Objects.equals(name, "test")) {
+			} else if (Boolean.logicalOr(proxy instanceof Predicate, proxy instanceof ObjIntPredicate)
+					&& Objects.equals(name, "test")) {
 				//
 				return test;
 				//
@@ -201,6 +203,8 @@ public class KeyStoreSslReportTest {
 		//
 		Class<?>[] parameterTypes = null;
 		//
+		Class<?> parameterType = null;
+		//
 		Object result = null;
 		//
 		String toString = null;
@@ -220,9 +224,13 @@ public class KeyStoreSslReportTest {
 			//
 			for (int j = 0; j < parameterTypes.length; j++) {
 				//
-				if (Objects.equals(ArrayUtils.get(parameterTypes, j), Integer.TYPE)) {
+				if (Objects.equals(parameterType = ArrayUtils.get(parameterTypes, j), Integer.TYPE)) {
 					//
 					add(collection, Integer.valueOf(0));
+					//
+				} else if (Objects.equals(parameterType, Boolean.TYPE)) {
+					//
+					add(collection, Boolean.TRUE);
 					//
 				} else {
 					//
@@ -343,6 +351,10 @@ public class KeyStoreSslReportTest {
 				} else if (Objects.equals(parameterType, Integer.TYPE)) {
 					//
 					add(collection, Integer.valueOf(0));
+					//
+				} else if (Objects.equals(parameterType, Boolean.TYPE)) {
+					//
+					add(collection, Boolean.TRUE);
 					//
 				} else if (Objects.equals(parameterType, KeyStore.class)) {
 					//

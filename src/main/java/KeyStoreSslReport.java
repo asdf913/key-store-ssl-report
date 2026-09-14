@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.validator.routines.DomainValidator;
+import org.d2ab.function.ObjIntPredicate;
 
 import io.github.toolfactory.narcissus.Narcissus;
 
@@ -461,7 +462,7 @@ public class KeyStoreSslReport {
 		final boolean conditionB = or(field, Objects::isNull,
 				f -> and(f, Objects::nonNull, g -> Narcissus.getField(b, g) != null));
 		//
-		for (int i = 0; conditionA && i < StringUtils.length(a); i++) {
+		for (int i = 0; and(conditionA, (value, index) -> index < StringUtils.length(value), a, i); i++) {
 			//
 			for (int j = 0; conditionB && j < StringUtils.length(b); j++) {
 				//
@@ -493,6 +494,11 @@ public class KeyStoreSslReport {
 			//
 		return conditionA ? StringUtils.substring(a, start, start + max) : null;
 		//
+	}
+
+	private static <T> boolean and(final boolean condition, final ObjIntPredicate<T> objIntPredicate, final T value,
+			final int integer) {
+		return condition && objIntPredicate != null && objIntPredicate.test(value, integer);
 	}
 
 	private static <T> boolean and(final T value, final Predicate<T> a, final Predicate<T> b) {
