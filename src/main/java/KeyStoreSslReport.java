@@ -137,7 +137,7 @@ public class KeyStoreSslReport {
 		final Field field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(url), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "value")), Collectors.toList()),
+						f -> Objects.equals(getName(f), VALUE)), Collectors.toList()),
 				x -> get(x, 0), null);
 		//
 		final HttpsURLConnection httpsURLConnection = cast(HttpsURLConnection.class,
