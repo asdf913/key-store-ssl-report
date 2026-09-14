@@ -78,11 +78,11 @@ public class KeyStoreSslReport {
 								lcs = longestCommonSubstring(getName(x509Certificate.getSubjectX500Principal()),
 										get(argumentMap, "url")))
 						&& !containsKey(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs)) {
-						//
-						put(map, lcs, x509Certificate);
-						//
-					} // if
-						//
+					//
+					put(map, lcs, x509Certificate);
+					//
+				} // if
+					//
 			} // while
 				//
 			final String longest = orElse(max(stream(keySet(map)), Comparator.comparingInt(StringUtils::length)), "");
