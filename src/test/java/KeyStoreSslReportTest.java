@@ -389,8 +389,7 @@ public class KeyStoreSslReportTest {
 	}
 
 	@Test
-	public void testMain() throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException,
-			CertificateException, IOException {
+	public void testMain() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 		//
 		KeyStoreSslReport.main(new String[] { cast(String.class, Narcissus.allocateInstance(String.class)), "=", "= ",
 				" =", "1=2", "1==" });
