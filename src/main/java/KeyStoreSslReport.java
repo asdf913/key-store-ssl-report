@@ -452,7 +452,7 @@ public class KeyStoreSslReport {
 						f -> Objects.equals(getName(f), "value")), Collectors.toList()),
 				x -> get(x, 0), null);
 		//
-		final boolean conditionA = field == null || Narcissus.getField(a, field) != null;
+		final boolean conditionA = or(field, Objects::isNull, f -> Narcissus.getField(a, f) != null);
 		//
 		final boolean conditionB = field == null || (b != null && Narcissus.getField(b, field) != null);
 		//
@@ -488,6 +488,10 @@ public class KeyStoreSslReport {
 			//
 		return conditionA ? StringUtils.substring(a, start, start + max) : null;
 		//
+	}
+
+	private static <T> boolean or(final T value, final Predicate<T> a, final Predicate<T> b) {
+		return test(a, value) || test(b, value);
 	}
 
 	private static int size(final Collection<?> instance) {
