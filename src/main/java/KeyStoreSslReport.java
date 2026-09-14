@@ -151,12 +151,11 @@ public class KeyStoreSslReport {
 		final DomainValidator domainValidator = DomainValidator.getInstance();
 		//
 		final List<Certificate> list = collect(
-				filter(testAndApply(Objects::nonNull, certificates, Arrays::stream, null), x -> {
-					//
-					return isValid(domainValidator, longestCommonSubstring(url,
-							getName(getSubjectX500Principal(cast(X509Certificate.class, x)))));
-					//
-				}), Collectors.toList());
+				filter(testAndApply(Objects::nonNull, certificates, Arrays::stream, null),
+						x -> isValid(domainValidator,
+								longestCommonSubstring(url,
+										getName(getSubjectX500Principal(cast(X509Certificate.class, x)))))),
+				Collectors.toList());
 		//
 		X509Certificate x509Certificate = null;
 		//
