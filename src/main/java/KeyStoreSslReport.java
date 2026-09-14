@@ -44,6 +44,8 @@ public class KeyStoreSslReport {
 
 	private static final String VALUE = "value";
 
+	private static final String INITIALIZED = "initialized";
+
 	public static void main(final String[] args)
 			throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
 		//
@@ -125,7 +127,7 @@ public class KeyStoreSslReport {
 		Field field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "initialized")), Collectors.toList()),
+						f -> Objects.equals(getName(f), INITIALIZED)), Collectors.toList()),
 				x -> get(x, 0), null);
 		//
 		if (field == null
@@ -160,7 +162,7 @@ public class KeyStoreSslReport {
 		Field field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "initialized")), Collectors.toList()),
+						f -> Objects.equals(getName(f), INITIALIZED)), Collectors.toList()),
 				x -> get(x, 0), null);
 		//
 		if (field == null
@@ -195,7 +197,7 @@ public class KeyStoreSslReport {
 		Field field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "initialized")), Collectors.toList()),
+						f -> Objects.equals(getName(f), INITIALIZED)), Collectors.toList()),
 				x -> get(x, 0), null);
 		//
 		if (field == null
@@ -238,7 +240,7 @@ public class KeyStoreSslReport {
 		final Field field = testAndApply(x -> size(x) == 1,
 				collect(filter(
 						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), "initialized")), Collectors.toList()),
+						f -> Objects.equals(getName(f), INITIALIZED)), Collectors.toList()),
 				x -> get(x, 0), null);
 		//
 		if (field == null
