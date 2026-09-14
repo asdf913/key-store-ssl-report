@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Proxy;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -13,6 +15,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -29,6 +32,8 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -36,6 +41,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.d2ab.function.ObjIntPredicate;
 
@@ -74,14 +80,15 @@ public class KeyStoreSslReport {
 			//
 			Certificate certificate = null;
 			//
+			final String url = get(argumentMap, "url");
+			//
 			while (hasMoreElements(aliases)) {
 				//
 				if ((isCertificateEntry(keystore, alias = nextElement(aliases)) || isKeyEntry(keystore, alias))
 						&& (certificate = getCertificate(keystore, alias)) instanceof X509Certificate
 						&& (x509Certificate = (X509Certificate) certificate) != null
 						&& isValid(DomainValidator.getInstance(),
-								lcs = longestCommonSubstring(getName(x509Certificate.getSubjectX500Principal()),
-										get(argumentMap, "url")))
+								lcs = longestCommonSubstring(getName(getSubjectX500Principal(x509Certificate)), url))
 						&& !containsKey(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs)) {
 					//
 					put(map, lcs, x509Certificate);
@@ -97,6 +104,8 @@ public class KeyStoreSslReport {
 			if ((map = collect(filter(stream(entrySet(map)), x -> Objects.equals(getKey(x), longest)),
 					Collectors.toMap(x -> getKey(x), x -> getValue(x)))) != null) {
 				//
+				Entry<String, Date> temp = null;
+				//
 				for (final Entry<String, X509Certificate> entry : entrySet(map)) {
 					//
 					if ((x509Certificate = getValue(entry)) == null) {
@@ -105,9 +114,11 @@ public class KeyStoreSslReport {
 						//
 					} // if
 						//
-					System.out.println(getKey(entry) + " "
+					System.out.println("KeyStore=" + getKey(entry) + " "
 							+ format(df = ObjectUtils.getIfNull(df, () -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")),
-									x509Certificate.getNotAfter()));
+									getNotAfter(x509Certificate)));
+					//
+					System.out.println("HTTPS   =" + getKey(temp = getEntry(url)) + " " + format(df, getValue(temp)));
 					//
 				} // for
 					//
@@ -115,6 +126,151 @@ public class KeyStoreSslReport {
 				//
 		} // try
 			//
+	}
+
+	private static X500Principal getSubjectX500Principal(final X509Certificate instance) {
+		return instance != null ? instance.getSubjectX500Principal() : null;
+	}
+
+	private static Entry<String, Date> getEntry(final String url) throws IOException {
+		//
+		final Field field = testAndApply(x -> size(x) == 1,
+				collect(filter(
+						stream(testAndApply(Objects::nonNull, getClass(url), FieldUtils::getAllFieldsList, null)),
+						f -> Objects.equals(getName(f), "value")), Collectors.toList()),
+				x -> get(x, 0), null);
+		//
+		final HttpsURLConnection httpsURLConnection = cast(HttpsURLConnection.class,
+				openConnection(testAndApply(x -> x != null && (field == null || Narcissus.getField(x, field) != null),
+						url, URL::new, null)));
+		//
+		connect(httpsURLConnection);
+		//
+		final Certificate[] certificates = getServerCertificates(httpsURLConnection);
+		//
+		final DomainValidator domainValidator = DomainValidator.getInstance();
+		//
+		final List<Certificate> list = collect(
+				filter(testAndApply(Objects::nonNull, certificates, Arrays::stream, null), x -> {
+					//
+					return isValid(domainValidator, longestCommonSubstring(url,
+							getName(getSubjectX500Principal(cast(X509Certificate.class, x)))));
+					//
+				}), Collectors.toList());
+		//
+		X509Certificate x509Certificate = null;
+		//
+		String name = null;
+		//
+		Date date = null;
+		//
+		for (int i = 0; i < size(list); i++) {
+			//
+			if (date != null) {
+				//
+				throw new IllegalStateException();
+				//
+			} // if
+				//
+			name = StringUtils.substringAfter(
+					getName(getSubjectX500Principal(x509Certificate = cast(X509Certificate.class, get(list, i)))), '=');
+			//
+			date = getNotAfter(x509Certificate);
+			//
+		} // for
+			//
+		disconnect(httpsURLConnection);
+		//
+		return Pair.of(name, date);
+		//
+	}
+
+	private static Date getNotAfter(final X509Certificate instance) {
+		return instance != null ? instance.getNotAfter() : null;
+	}
+
+	private static void disconnect(final HttpsURLConnection instance) throws IOException {
+		//
+		if (instance == null) {
+			//
+			return;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> size(x) == 1,
+				collect(filter(
+						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
+						f -> Objects.equals(getName(f), "delegate")), Collectors.toList()),
+				x -> get(x, 0), null);
+
+		//
+		if (field == null || Narcissus.getField(instance, field) != null) {
+			//
+			instance.disconnect();
+			//
+		} // if
+			//
+	}
+
+	private static void connect(final HttpsURLConnection instance) throws IOException {
+		//
+		if (instance == null) {
+			//
+			return;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> size(x) == 1,
+				collect(filter(
+						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
+						f -> Objects.equals(getName(f), "delegate")), Collectors.toList()),
+				x -> get(x, 0), null);
+
+		//
+		if (field == null || Narcissus.getField(instance, field) != null) {
+			//
+			instance.connect();
+			//
+		} // if
+			//
+	}
+
+	private static Certificate[] getServerCertificates(final HttpsURLConnection instance)
+			throws SSLPeerUnverifiedException {
+		//
+		final Field field = testAndApply(x -> size(x) == 1,
+				collect(filter(
+						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
+						f -> Objects.equals(getName(f), "delegate")), Collectors.toList()),
+				x -> get(x, 0), null);
+
+		//
+		return instance != null && (field == null || Narcissus.getField(instance, field) != null)
+				? instance.getServerCertificates()
+				: null;
+		//
+	}
+
+	private static <T> T cast(final Class<T> clz, final Object instance) {
+		return clz != null && clz.isInstance(instance) ? clz.cast(instance) : null;
+	}
+
+	private static URLConnection openConnection(final URL instance) throws IOException {
+		//
+		if (instance == null) {
+			//
+			return null;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> size(x) == 1,
+				collect(filter(
+						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
+						f -> Objects.equals(getName(f), "handler")), Collectors.toList()),
+				x -> get(x, 0), null);
+		//
+		return field == null || Narcissus.getField(instance, field) != null ? instance.openConnection() : null;
+		//
 	}
 
 	private static Certificate getCertificate(final KeyStore instance, final String alias) throws KeyStoreException {

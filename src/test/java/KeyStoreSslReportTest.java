@@ -11,6 +11,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,6 +28,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -244,7 +247,9 @@ public class KeyStoreSslReportTest {
 			//
 			toString = Objects.toString(m);
 			//
-			if (contains(Arrays.asList(Boolean.TYPE, Integer.TYPE), m.getReturnType())) {
+			if (contains(Arrays.asList(Boolean.TYPE, Integer.TYPE), m.getReturnType())
+					|| Boolean.logicalAnd(Objects.equals(getName(m), "getEntry"),
+							Arrays.equals(parameterTypes, new Class<?>[] { String.class }))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
@@ -256,6 +261,7 @@ public class KeyStoreSslReportTest {
 				//
 		} // for
 			//
+
 	}
 
 	private static <E> void add(final Collection<E> instance, final E item) {
@@ -365,6 +371,19 @@ public class KeyStoreSslReportTest {
 					//
 					add(collection, Narcissus.allocateInstance(ByteArrayInputStream.class));
 					//
+				} else if (Objects.equals(parameterType, Class.class)) {
+					//
+					add(collection, Class.class);
+					//
+				} else if (Objects.equals(parameterType, HttpsURLConnection.class)) {
+					//
+					add(collection, Narcissus
+							.allocateInstance(Class.forName("sun.net.www.protocol.https.HttpsURLConnectionImpl")));
+					//
+				} else if (Objects.equals(parameterType, X509Certificate.class)) {
+					//
+					add(collection, Narcissus.allocateInstance(Class.forName("sun.security.x509.X509CertImpl")));
+					//
 				} else {
 					//
 					add(collection, Narcissus.allocateInstance(parameterType));
@@ -378,10 +397,12 @@ public class KeyStoreSslReportTest {
 			toString = Objects.toString(m);
 			//
 			if (contains(Arrays.asList(Boolean.TYPE, Integer.TYPE), m.getReturnType())
-					|| Boolean.logicalOr(Objects.equals(name = getName(m), "getClass"),
+					|| Boolean.logicalAnd(Objects.equals(name = getName(m), "getClass"),
 							Arrays.equals(parameterTypes, new Class<?>[] { Object.class }))
-					|| Boolean.logicalOr(Objects.equals(name, "orElse"),
-							Arrays.equals(parameterTypes, new Class<?>[] { Optional.class, Object.class }))) {
+					|| Boolean.logicalAnd(Objects.equals(name, "orElse"),
+							Arrays.equals(parameterTypes, new Class<?>[] { Optional.class, Object.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "getEntry"),
+							Arrays.equals(parameterTypes, new Class<?>[] { String.class }))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
