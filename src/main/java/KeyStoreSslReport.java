@@ -444,8 +444,7 @@ public class KeyStoreSslReport {
 	}
 
 	private static boolean containsKey(final Map<?, ?> instance, final Object key) {
-		return instance != null
-				&& instance.containsKey(key);
+		return instance != null && instance.containsKey(key);
 	}
 
 	private static String longestCommonSubstring(final String a, final String b) {
