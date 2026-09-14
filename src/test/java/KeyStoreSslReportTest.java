@@ -1,0 +1,498 @@
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.function.FailableFunction;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.validator.routines.DomainValidator;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import com.google.common.reflect.Reflection;
+
+import io.github.toolfactory.narcissus.Narcissus;
+
+public class KeyStoreSslReportTest {
+
+	private static Method METHOD_GET_NAME, METHOD_GET_CERTIFICATE, METHOD_LOAD, METHOD_IS_KEY_ENTRY,
+			METHOD_IS_CERTIFICATE_ENTRY, METHOD_IS_VALID, METHOD_FORMAT, METHOD_TO_CHAR_ARRAY, METHOD_CONTAINS_KEY,
+			METHOD_LONGEST_COMMON_SUB_STRING = null;
+
+	@BeforeClass
+	static void beforeClass() throws NoSuchMethodException {
+		//
+		final Class<?> clz = KeyStoreSslReport.class;
+		//
+		(METHOD_GET_NAME = clz.getDeclaredMethod("getName", Member.class)).setAccessible(true);
+		//
+		(METHOD_GET_CERTIFICATE = clz.getDeclaredMethod("getCertificate", KeyStore.class, String.class))
+				.setAccessible(true);
+		//
+		(METHOD_LOAD = clz.getDeclaredMethod("load", KeyStore.class, InputStream.class, char[].class))
+				.setAccessible(true);
+		//
+		(METHOD_IS_KEY_ENTRY = clz.getDeclaredMethod("isKeyEntry", KeyStore.class, String.class)).setAccessible(true);
+		//
+		(METHOD_IS_CERTIFICATE_ENTRY = clz.getDeclaredMethod("isCertificateEntry", KeyStore.class, String.class))
+				.setAccessible(true);
+		//
+		(METHOD_IS_VALID = clz.getDeclaredMethod("isValid", DomainValidator.class, String.class)).setAccessible(true);
+		//
+		(METHOD_FORMAT = clz.getDeclaredMethod("format", DateFormat.class, Date.class)).setAccessible(true);
+		//
+		(METHOD_TO_CHAR_ARRAY = clz.getDeclaredMethod("toCharArray", String.class)).setAccessible(true);
+		//
+		(METHOD_CONTAINS_KEY = clz.getDeclaredMethod("containsKey", Map.class, Object.class)).setAccessible(true);
+		//
+		(METHOD_LONGEST_COMMON_SUB_STRING = clz.getDeclaredMethod("longestCommonSubstring", String.class, String.class))
+				.setAccessible(true);
+		//
+	}
+
+	private static class IH implements InvocationHandler {
+
+		private Boolean test, containsKey, hasMoreElements;
+
+		private Integer size;
+
+		@Override
+		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+			//
+			final String name = getName(method);
+			//
+			if (proxy instanceof Collection) {
+				//
+				if (Objects.equals(name, "size")) {
+					//
+					return size;
+					//
+				} else if (Objects.equals(name, "stream")) {
+					//
+					return null;
+					//
+				} // if
+					//
+			} // if
+				//
+			if (proxy instanceof Map) {
+				//
+				if (Objects.equals(name, "containsKey")) {
+					//
+					return containsKey;
+					//
+				} else if (contains(Arrays.asList("get", "put", "entrySet", "keySet"), name)) {
+					//
+					return null;
+					//
+				} // if
+					//
+			} else if (proxy instanceof Predicate && Objects.equals(name, "test")) {
+				//
+				return test;
+				//
+			} else if (proxy instanceof FailableFunction && Objects.equals(name, "apply")) {
+				//
+				return null;
+				//
+			} else if (proxy instanceof Stream) {
+				//
+				if (contains(Arrays.asList("collect", "filter", "max"), name)) {
+					//
+					return null;
+					//
+				} // if
+					//
+			} else if (proxy instanceof List && Objects.equals(name, "get")) {
+				//
+				return null;
+				//
+			} else if (proxy instanceof Member && Objects.equals(name, "getName")) {
+				//
+				return null;
+				//
+			} else if (proxy instanceof Entry && contains(Arrays.asList("getValue", "getKey"), "getValue")) {
+				//
+				return null;
+				//
+			} else if (proxy instanceof Enumeration) {
+				//
+				if (Objects.equals(name, "hasMoreElements")) {
+					//
+					return hasMoreElements;
+					//
+				} else if (Objects.equals(name, "nextElement")) {
+					//
+					return null;
+					//
+				} // if
+					//
+			} // if
+				//
+			throw new Throwable(name);
+			//
+		}
+
+	}
+
+	private KeyStore keyStore = null;
+
+	@BeforeMethod
+	void beforeMethod() throws IllegalAccessException, InvocationTargetException, KeyStoreException {
+		//
+		Assert.assertNull(
+				invoke(METHOD_LOAD, null, keyStore = KeyStore.getInstance(KeyStore.getDefaultType()), null, null));
+		//
+	}
+
+	private static boolean contains(final Collection<?> instance, final Object item) {
+		return instance != null && instance.contains(item);
+	}
+
+	private static String getName(final Member instance) throws Throwable {
+		try {
+			final Object obj = invoke(METHOD_GET_NAME, null, instance);
+			if (obj == null) {
+				return null;
+			} else if (obj instanceof String) {
+				return (String) obj;
+			}
+			throw new Throwable(Objects.toString(getClass(instance)));
+		} catch (final InvocationTargetException e) {
+			throw e.getTargetException();
+		}
+	}
+
+	@Test
+	void testNull() throws Throwable {
+		//
+		final Method[] ms = KeyStoreSslReport.class.getDeclaredMethods();
+		//
+		Method m = null;
+		//
+		Class<?>[] parameterTypes = null;
+		//
+		Object result = null;
+		//
+		String toString = null;
+		//
+		Collection<Object> collection = null;
+		//
+		for (int i = 0; ms != null && i < ms.length; i++) {
+			//
+			if ((m = ArrayUtils.get(ms, i)) == null || m.isSynthetic()
+					|| (parameterTypes = m.getParameterTypes()) == null) {
+				//
+				continue;
+				//
+			} // if
+				//
+			clear(collection = ObjectUtils.getIfNull(collection, ArrayList::new));
+			//
+			for (int j = 0; j < parameterTypes.length; j++) {
+				//
+				if (Objects.equals(ArrayUtils.get(parameterTypes, j), Integer.TYPE)) {
+					//
+					add(collection, Integer.valueOf(0));
+					//
+				} else {
+					//
+					add(collection, null);
+					//
+				} // if
+					//
+			} // for
+				//
+			result = Narcissus.invokeStaticMethod(m, toArray(collection));
+			//
+			toString = Objects.toString(m);
+			//
+			if (contains(Arrays.asList(Boolean.TYPE, Integer.TYPE), m.getReturnType())) {
+				//
+				Assert.assertNotNull(result, toString);
+				//
+			} else {
+				//
+				Assert.assertNull(result, toString);
+				//
+			} // if
+				//
+		} // for
+			//
+	}
+
+	private static <E> void add(final Collection<E> instance, final E item) {
+		if (instance != null) {
+			instance.add(item);
+		}
+	}
+
+	private static void clear(final Collection<?> instance) {
+		if (instance != null) {
+			instance.clear();
+		}
+	}
+
+	private static Object[] toArray(final Collection<?> instance) {
+		return instance != null ? instance.toArray() : null;
+	}
+
+	@Test
+	void testNotNull() throws Throwable {
+		//
+		final Method[] ms = KeyStoreSslReport.class.getDeclaredMethods();
+		//
+		Method m = null;
+		//
+		Class<?>[] parameterTypes = null;
+		//
+		Class<?> parameterType = null;
+		//
+		Object result = null;
+		//
+		String toString, name = null;
+		//
+		Collection<Object> collection = null;
+		//
+		IH ih = null;
+		//
+		for (int i = 0; ms != null && i < ms.length; i++) {
+			//
+			if ((m = ArrayUtils.get(ms, i)) == null || m.isSynthetic()
+					|| (parameterTypes = m.getParameterTypes()) == null) {
+				//
+				continue;
+				//
+			} // if
+				//
+			clear(collection = ObjectUtils.getIfNull(collection, ArrayList::new));
+			//
+			for (int j = 0; j < parameterTypes.length; j++) {
+				//
+				if ((parameterType = ArrayUtils.get(parameterTypes, j)) != null && parameterType.isInterface()) {
+					//
+					if ((ih = ObjectUtils.getIfNull(ih, IH::new)) != null) {
+						//
+						final List<Field> fs = FieldUtils.getAllFieldsList(getClass(ih));
+						//
+						Field f = null;
+						//
+						for (int k = 0; fs != null && k < fs.size(); k++) {
+							//
+							if ((f = fs.get(k)) == null) {
+								//
+								continue;
+								//
+							} // if
+								//
+							final Class<?> type = f.getType();
+							//
+							if (Objects.equals(type, Boolean.class)) {
+								//
+								Narcissus.setField(ih, f, Boolean.TRUE);
+								//
+							} else if (Objects.equals(type, Integer.class)) {
+								//
+								Narcissus.setField(ih, f, Integer.valueOf(0));
+								//
+							} // if
+								//
+						} // for
+							//
+					} // if
+						//
+					add(collection, Reflection.newProxy(parameterType, ih = ObjectUtils.getIfNull(ih, IH::new)));
+					//
+				} else if (parameterType != null && parameterType.isArray()) {
+					//
+					add(collection, Array.newInstance(parameterType.getComponentType(), 0));
+					//
+				} else if (Objects.equals(parameterType, DateFormat.class)) {
+					//
+					add(collection, Narcissus.allocateInstance(SimpleDateFormat.class));
+					//
+				} else if (Objects.equals(parameterType, Integer.TYPE)) {
+					//
+					add(collection, Integer.valueOf(0));
+					//
+				} else if (Objects.equals(parameterType, KeyStore.class)) {
+					//
+					add(collection,
+							Narcissus.allocateInstance(getClass(KeyStore.getInstance(KeyStore.getDefaultType()))));
+					//
+				} else if (Objects.equals(parameterType, InputStream.class)) {
+					//
+					add(collection, Narcissus.allocateInstance(ByteArrayInputStream.class));
+					//
+				} else {
+					//
+					add(collection, Narcissus.allocateInstance(parameterType));
+					//
+				} // if
+					//
+			} // for
+				//
+			result = Narcissus.invokeStaticMethod(m, toArray(collection));
+			//
+			toString = Objects.toString(m);
+			//
+			if (contains(Arrays.asList(Boolean.TYPE, Integer.TYPE), m.getReturnType())
+					|| Boolean.logicalOr(Objects.equals(name = getName(m), "getClass"),
+							Arrays.equals(parameterTypes, new Class<?>[] { Object.class }))
+					|| Boolean.logicalOr(Objects.equals(name, "orElse"),
+							Arrays.equals(parameterTypes, new Class<?>[] { Optional.class, Object.class }))) {
+				//
+				Assert.assertNotNull(result, toString);
+				//
+			} else {
+				//
+				Assert.assertNull(result, toString);
+				//
+			} // if
+				//
+		} // for
+			//
+	}
+
+	private static Class<?> getClass(final Object instance) {
+		return instance != null ? instance.getClass() : null;
+	}
+
+	@Test
+	public void testMain() throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException,
+			CertificateException, IOException {
+		//
+		KeyStoreSslReport.main(new String[] { cast(String.class, Narcissus.allocateInstance(String.class)), "=", "= ",
+				" =", "1=2", "1==" });
+		//
+	}
+
+	private static <T> T cast(final Class<T> clz, final Object instance) {
+		return clz != null && clz.isInstance(instance) ? clz.cast(instance) : null;
+	}
+
+	private static Object invoke(final Method method, final Object instance, final Object... args)
+			throws IllegalAccessException, InvocationTargetException {
+		return method != null && method.getDeclaringClass() != null ? method.invoke(instance, args) : null;
+	}
+
+	@Test
+	public void testGetCertificate() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNull(invoke(METHOD_GET_CERTIFICATE, null, keyStore, null));
+		//
+		Assert.assertNull(invoke(METHOD_GET_CERTIFICATE, null, keyStore, ""));
+		//
+		Assert.assertNull(invoke(METHOD_GET_CERTIFICATE, null, keyStore, Narcissus.allocateInstance(String.class)));
+		//
+	}
+
+	@Test
+	public void testIsKeyEntry() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertEquals(invoke(METHOD_IS_KEY_ENTRY, null, keyStore, null), Boolean.FALSE);
+		//
+		Assert.assertEquals(invoke(METHOD_IS_KEY_ENTRY, null, keyStore, ""), Boolean.FALSE);
+		//
+		Assert.assertEquals(invoke(METHOD_IS_KEY_ENTRY, null, keyStore, Narcissus.allocateInstance(String.class)),
+				Boolean.FALSE);
+		//
+	}
+
+	@Test
+	public void testIsCertificateEntry() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertEquals(invoke(METHOD_IS_CERTIFICATE_ENTRY, null, keyStore, null), Boolean.FALSE);
+		//
+		Assert.assertEquals(invoke(METHOD_IS_CERTIFICATE_ENTRY, null, keyStore, ""), Boolean.FALSE);
+		//
+		Assert.assertEquals(
+				invoke(METHOD_IS_CERTIFICATE_ENTRY, null, keyStore, Narcissus.allocateInstance(String.class)),
+				Boolean.FALSE);
+		//
+	}
+
+	@Test
+	public void testIsValid() throws IllegalAccessException, InvocationTargetException {
+		//
+		final DomainValidator domainValidator = DomainValidator.getInstance();
+		//
+		Assert.assertEquals(invoke(METHOD_IS_VALID, null, domainValidator, null), Boolean.FALSE);
+		//
+		Assert.assertEquals(invoke(METHOD_IS_VALID, null, domainValidator, ""), Boolean.FALSE);
+		//
+		Assert.assertEquals(invoke(METHOD_IS_VALID, null, domainValidator, "z.cn"), Boolean.TRUE);
+		//
+		Assert.assertEquals(invoke(METHOD_IS_VALID, null, domainValidator, Narcissus.allocateInstance(String.class)),
+				Boolean.FALSE);
+		//
+		Assert.assertEquals(invoke(METHOD_IS_VALID, null, Narcissus.allocateInstance(DomainValidator.class), "z.cn"),
+				Boolean.FALSE);
+		//
+	}
+
+	@Test
+	public void testFormat() throws IllegalAccessException, InvocationTargetException, ParseException {
+		//
+		final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		//
+		Assert.assertNull(invoke(METHOD_FORMAT, null, df, null));
+		//
+		final String string = "2001-02-03";
+		//
+		Assert.assertEquals(invoke(METHOD_FORMAT, null, df, df != null ? df.parse(string) : null), string);
+		//
+	}
+
+	@Test
+	public void testToCharArray() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNotNull(invoke(METHOD_TO_CHAR_ARRAY, null, ""));
+		//
+	}
+
+	@Test
+	public void testContainsKey() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertEquals(invoke(METHOD_CONTAINS_KEY, null, Collections.singletonMap(null, null), ""), Boolean.FALSE);
+		//
+	}
+
+	@Test
+	public void testLongestCommonSubstring() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertEquals(invoke(METHOD_LONGEST_COMMON_SUB_STRING, null, "abcd", "bcde"), "bcd");
+		//
+	}
+
+}
