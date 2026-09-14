@@ -464,7 +464,7 @@ public class KeyStoreSslReport {
 		//
 		for (int i = 0; and(conditionA, (value, index) -> index < StringUtils.length(value), a, i); i++) {
 			//
-			for (int j = 0; conditionB && j < StringUtils.length(b); j++) {
+			for (int j = 0; and(conditionB, (value, index) -> index < StringUtils.length(value), b, j); j++) {
 				//
 				int x = 0;
 				//
