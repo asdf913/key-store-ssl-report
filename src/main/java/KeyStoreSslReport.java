@@ -70,8 +70,6 @@ public class KeyStoreSslReport {
 		//
 		Map<String, X509Certificate> map = null;
 		//
-		X509Certificate x509Certificate = null;
-		//
 		try (final InputStream is = testAndApply(Objects::nonNull, file, FileInputStream::new, null)) {
 			//
 			load(keystore, is, toCharArray(get(argumentMap, "password")));
@@ -82,6 +80,10 @@ public class KeyStoreSslReport {
 			//
 			Certificate certificate = null;
 			//
+			X509Certificate x509Certificate = null;
+			//
+			Date notAfter = null;
+			//
 			final String url = get(argumentMap, "url");
 			//
 			while (hasMoreElements(aliases)) {
@@ -90,11 +92,19 @@ public class KeyStoreSslReport {
 						&& (certificate = getCertificate(keystore, alias)) instanceof X509Certificate
 						&& (x509Certificate = (X509Certificate) certificate) != null
 						&& isValid(DomainValidator.getInstance(),
-								lcs = longestCommonSubstring(getName(getSubjectX500Principal(x509Certificate)), url))
-						&& !containsKey(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs)) {
+								lcs = longestCommonSubstring(getName(getSubjectX500Principal(x509Certificate)), url))) {
 					//
-					put(map, lcs, x509Certificate);
-					//
+					if ((notAfter = getNotAfter(
+							get(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs))) == null) {
+						//
+						put(map, lcs, x509Certificate);
+						//
+					} else if (ObjectUtils.compare(getNotAfter(x509Certificate), notAfter) > 0) {
+						//
+						put(map, lcs, x509Certificate);
+						//
+					} // if
+						//
 				} // if
 					//
 			} // while
@@ -599,10 +609,6 @@ public class KeyStoreSslReport {
 		if (instance != null) {
 			instance.put(key, value);
 		}
-	}
-
-	private static boolean containsKey(final Map<?, ?> instance, final Object key) {
-		return instance != null && instance.containsKey(key);
 	}
 
 	private static String longestCommonSubstring(final String a, final String b) {
