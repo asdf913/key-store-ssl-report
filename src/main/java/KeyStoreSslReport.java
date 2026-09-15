@@ -119,6 +119,8 @@ public class KeyStoreSslReport {
 				//
 				Entry<String, Date> temp = null;
 				//
+				Long difference = null;
+				//
 				for (final Entry<String, X509Certificate> entry : entrySet(map)) {
 					//
 					if ((x509Certificate = getValue(entry)) == null) {
@@ -133,9 +135,13 @@ public class KeyStoreSslReport {
 					//
 					info(LOG, "HTTPS     ={} {}", getKey(temp = getEntry(url)), format(df, getValue(temp)));
 					//
-					info(LOG, "Difference={}", DurationFormatUtils.formatDurationWords(
-							substract(getValue(temp), getNotAfter(x509Certificate)), false, false));
-					//
+					if ((difference = substract(getValue(temp), getNotAfter(x509Certificate))) != null) {
+						//
+						info(LOG, "Difference={}",
+								DurationFormatUtils.formatDurationWords(difference.longValue(), false, false));
+						//
+					} // if
+						//
 				} // for
 					//
 			} // if
