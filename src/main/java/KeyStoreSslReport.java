@@ -112,42 +112,53 @@ public class KeyStoreSslReport {
 				//
 			final String longest = orElse(max(stream(keySet(map)), Comparator.comparingInt(StringUtils::length)), "");
 			//
-			DateFormat df = null;
+			info(LOG, url, collect(filter(stream(entrySet(map)), x -> Objects.equals(getKey(x), longest)),
+					Collectors.toMap(x -> getKey(x), x -> getValue(x))));
 			//
-			if ((map = collect(filter(stream(entrySet(map)), x -> Objects.equals(getKey(x), longest)),
-					Collectors.toMap(x -> getKey(x), x -> getValue(x)))) != null) {
+		} // try
+			//
+	}
+
+	private static void info(final Logger logger, final String url, final Map<String, X509Certificate> map)
+			throws IOException {
+		//
+		if (entrySet(map) == null) {
+			//
+			return;
+			//
+		} // if
+			//
+		X509Certificate x509Certificate = null;
+		//
+		DateFormat df = null;
+		//
+		Entry<String, Date> temp = null;
+		//
+		Long difference = null;
+		//
+		for (final Entry<String, X509Certificate> entry : entrySet(map)) {
+			//
+			if ((x509Certificate = getValue(entry)) == null) {
 				//
-				Entry<String, Date> temp = null;
+				continue;
 				//
-				Long difference = null;
-				//
-				for (final Entry<String, X509Certificate> entry : entrySet(map)) {
-					//
-					if ((x509Certificate = getValue(entry)) == null) {
-						//
-						continue;
-						//
-					} // if
-						//
-					info(LOG, "KeyStore  ={} {} ", getKey(entry),
-							format(df = ObjectUtils.getIfNull(df, () -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")),
-									getNotAfter(x509Certificate)));
-					//
-					info(LOG, "HTTPS     ={} {}", getKey(temp = getEntry(url)), format(df, getValue(temp)));
-					//
-					if ((difference = substract(getValue(temp), getNotAfter(x509Certificate))) != null
-							&& difference.longValue() != 0) {
-						//
-						info(LOG, "Difference={}",
-								DurationFormatUtils.formatDurationWords(difference.longValue(), false, false));
-						//
-					} // if
-						//
-				} // for
-					//
 			} // if
 				//
-		} // try
+			info(logger, "KeyStore  ={} {} ", getKey(entry),
+					format(df = ObjectUtils.getIfNull(df, () -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")),
+							getNotAfter(x509Certificate)));
+			//
+			info(logger, "HTTPS     ={} {}", getKey(temp = getEntry(url)), format(df, getValue(temp)));
+			//
+			if ((difference = substract(getValue(temp), getNotAfter(x509Certificate))) != null
+					&& difference.longValue() != 0) {
+				//
+				info(logger, "Difference={}",
+						DurationFormatUtils.formatDurationWords(difference.longValue(), false, false));
+				//
+			} // if
+				//
+		} // for
 			//
 	}
 

@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.d2ab.function.ObjIntPredicate;
+import org.slf4j.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -50,7 +52,7 @@ public class KeyStoreSslReportTest {
 
 	private static Method METHOD_GET_NAME, METHOD_GET_CERTIFICATE, METHOD_LOAD, METHOD_IS_KEY_ENTRY,
 			METHOD_IS_CERTIFICATE_ENTRY, METHOD_IS_VALID, METHOD_FORMAT, METHOD_TO_CHAR_ARRAY,
-			METHOD_LONGEST_COMMON_SUB_STRING, METHOD_SUBSTRACT, METHOD_GET_ABSOLUTE_PATH = null;
+			METHOD_LONGEST_COMMON_SUB_STRING, METHOD_SUBSTRACT, METHOD_GET_ABSOLUTE_PATH, METHOD_INFO = null;
 
 	@BeforeClass
 	static void beforeClass() throws NoSuchMethodException {
@@ -82,6 +84,8 @@ public class KeyStoreSslReportTest {
 		(METHOD_SUBSTRACT = clz.getDeclaredMethod("substract", Date.class, Date.class)).setAccessible(true);
 		//
 		(METHOD_GET_ABSOLUTE_PATH = clz.getDeclaredMethod("getAbsolutePath", File.class)).setAccessible(true);
+		//
+		(METHOD_INFO = clz.getDeclaredMethod("info", Logger.class, String.class, Map.class)).setAccessible(true);
 		//
 	}
 
@@ -543,4 +547,13 @@ public class KeyStoreSslReportTest {
 		//
 	}
 
+	@Test
+	public void testInfo() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+		//
+		Assert.assertNull(invoke(METHOD_INFO, null, null, null, Collections.singletonMap(null, null)));
+		//
+		Assert.assertNull(invoke(METHOD_INFO, null, null, null, Collections.singletonMap(null,
+				Narcissus.allocateInstance(Class.forName("sun.security.x509.X509CertImpl")))));
+		//
+	}
 }
