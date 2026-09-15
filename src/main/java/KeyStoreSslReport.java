@@ -99,15 +99,13 @@ public class KeyStoreSslReport {
 						&& (certificate = getCertificate(keystore, alias)) instanceof X509Certificate
 						&& (x509Certificate = (X509Certificate) certificate) != null
 						&& isValid(DomainValidator.getInstance(),
-								lcs = longestCommonSubstring(getName(getSubjectX500Principal(x509Certificate)), url))) {
+								lcs = longestCommonSubstring(getName(getSubjectX500Principal(x509Certificate)), url))
+						&& ((notAfter = getNotAfter(
+								get(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs))) == null
+								|| ObjectUtils.compare(getNotAfter(x509Certificate), notAfter) > 0)) {
 					//
-					if ((notAfter = getNotAfter(get(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs))) == null
-							|| ObjectUtils.compare(getNotAfter(x509Certificate), notAfter) > 0) {
-						//
-						put(map, lcs, x509Certificate);
-						//
-					} // if
-						//
+					put(map, lcs, x509Certificate);
+					//
 				} // if
 					//
 			} // while
@@ -144,6 +142,7 @@ public class KeyStoreSslReport {
 				//
 		} // try
 			//
+
 	}
 
 	private static Long substract(final Date a, final Date b) {
