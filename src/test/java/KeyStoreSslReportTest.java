@@ -92,6 +92,12 @@ public class KeyStoreSslReportTest {
 			//
 			final String name = getName(method);
 			//
+			if (Objects.equals(method != null ? method.getReturnType() : null, Void.TYPE)) {
+				//
+				return null;
+				//
+			} // if
+				//
 			if (proxy instanceof Collection) {
 				//
 				if (Objects.equals(name, "size")) {

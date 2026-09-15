@@ -44,6 +44,8 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.d2ab.function.ObjIntPredicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.toolfactory.narcissus.Narcissus;
 
@@ -54,6 +56,8 @@ public class KeyStoreSslReport {
 	private static final String INITIALIZED = "initialized";
 
 	private static final String DELEGATE = "delegate";
+
+	private static final Logger LOG = LoggerFactory.getLogger(KeyStoreSslReport.class);
 
 	public static void main(final String[] args)
 			throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
@@ -66,7 +70,7 @@ public class KeyStoreSslReport {
 		//
 		final File file = testAndApply(Objects::nonNull, trustStorePath, File::new, null);
 		//
-		System.out.println(file);
+		info(LOG, "file    ={}", file != null ? file.getAbsoluteFile() : null);
 		//
 		Map<String, X509Certificate> map = null;
 		//
@@ -126,11 +130,11 @@ public class KeyStoreSslReport {
 						//
 					} // if
 						//
-					System.out.println("KeyStore=" + getKey(entry) + " "
-							+ format(df = ObjectUtils.getIfNull(df, () -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")),
+					info(LOG, "KeyStore={} {} ", getKey(entry),
+							format(df = ObjectUtils.getIfNull(df, () -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")),
 									getNotAfter(x509Certificate)));
 					//
-					System.out.println("HTTPS   =" + getKey(temp = getEntry(url)) + " " + format(df, getValue(temp)));
+					info(LOG, "HTTPS   ={} {}", getKey(temp = getEntry(url)), format(df, getValue(temp)));
 					//
 				} // for
 					//
@@ -138,6 +142,12 @@ public class KeyStoreSslReport {
 				//
 		} // try
 			//
+	}
+
+	private static void info(final Logger instance, final String format, final Object... arguments) {
+		if (instance != null) {
+			instance.info(format, arguments);
+		}
 	}
 
 	private static X500Principal getSubjectX500Principal(final X509Certificate instance) {
