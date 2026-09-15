@@ -76,8 +76,6 @@ public class KeyStoreSslReportTest {
 		//
 		(METHOD_TO_CHAR_ARRAY = clz.getDeclaredMethod("toCharArray", String.class)).setAccessible(true);
 		//
-		(METHOD_CONTAINS_KEY = clz.getDeclaredMethod("containsKey", Map.class, Object.class)).setAccessible(true);
-		//
 		(METHOD_LONGEST_COMMON_SUB_STRING = clz.getDeclaredMethod("longestCommonSubstring", String.class, String.class))
 				.setAccessible(true);
 		//
@@ -509,13 +507,6 @@ public class KeyStoreSslReportTest {
 	public void testToCharArray() throws IllegalAccessException, InvocationTargetException {
 		//
 		Assert.assertNotNull(invoke(METHOD_TO_CHAR_ARRAY, null, ""));
-		//
-	}
-
-	@Test
-	public void testContainsKey() throws IllegalAccessException, InvocationTargetException {
-		//
-		Assert.assertEquals(invoke(METHOD_CONTAINS_KEY, null, Collections.singletonMap(null, null), ""), Boolean.FALSE);
 		//
 	}
 
