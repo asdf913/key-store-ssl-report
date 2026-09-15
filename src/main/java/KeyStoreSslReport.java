@@ -101,12 +101,8 @@ public class KeyStoreSslReport {
 						&& isValid(DomainValidator.getInstance(),
 								lcs = longestCommonSubstring(getName(getSubjectX500Principal(x509Certificate)), url))) {
 					//
-					if ((notAfter = getNotAfter(
-							get(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs))) == null) {
-						//
-						put(map, lcs, x509Certificate);
-						//
-					} else if (ObjectUtils.compare(getNotAfter(x509Certificate), notAfter) > 0) {
+					if ((notAfter = getNotAfter(get(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs))) == null
+							|| ObjectUtils.compare(getNotAfter(x509Certificate), notAfter) > 0) {
 						//
 						put(map, lcs, x509Certificate);
 						//
