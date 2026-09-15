@@ -41,6 +41,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.d2ab.function.ObjIntPredicate;
@@ -70,7 +71,7 @@ public class KeyStoreSslReport {
 		//
 		final File file = testAndApply(Objects::nonNull, trustStorePath, File::new, null);
 		//
-		info(LOG, "file    ={}", file != null ? file.getAbsoluteFile() : null);
+		info(LOG, "File      ={}", file != null ? file.getAbsoluteFile() : null);
 		//
 		Map<String, X509Certificate> map = null;
 		//
@@ -89,6 +90,8 @@ public class KeyStoreSslReport {
 			Date notAfter = null;
 			//
 			final String url = get(argumentMap, "url");
+			//
+			info(LOG, "URL       ={}", url);
 			//
 			while (hasMoreElements(aliases)) {
 				//
@@ -130,11 +133,14 @@ public class KeyStoreSslReport {
 						//
 					} // if
 						//
-					info(LOG, "KeyStore={} {} ", getKey(entry),
+					info(LOG, "KeyStore  ={} {} ", getKey(entry),
 							format(df = ObjectUtils.getIfNull(df, () -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")),
 									getNotAfter(x509Certificate)));
 					//
-					info(LOG, "HTTPS   ={} {}", getKey(temp = getEntry(url)), format(df, getValue(temp)));
+					info(LOG, "HTTPS     ={} {}", getKey(temp = getEntry(url)), format(df, getValue(temp)));
+					//
+					info(LOG, "Difference={}", DurationFormatUtils.formatDurationWords(
+							substract(getValue(temp), getNotAfter(x509Certificate)), false, false));
 					//
 				} // for
 					//
@@ -142,6 +148,10 @@ public class KeyStoreSslReport {
 				//
 		} // try
 			//
+	}
+
+	private static Long substract(final Date a, final Date b) {
+		return a != null && b != null ? Long.valueOf(a.getTime() - b.getTime()) : null;
 	}
 
 	private static void info(final Logger instance, final String format, final Object... arguments) {

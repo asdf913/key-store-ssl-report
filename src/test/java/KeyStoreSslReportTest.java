@@ -50,7 +50,7 @@ public class KeyStoreSslReportTest {
 
 	private static Method METHOD_GET_NAME, METHOD_GET_CERTIFICATE, METHOD_LOAD, METHOD_IS_KEY_ENTRY,
 			METHOD_IS_CERTIFICATE_ENTRY, METHOD_IS_VALID, METHOD_FORMAT, METHOD_TO_CHAR_ARRAY, METHOD_CONTAINS_KEY,
-			METHOD_LONGEST_COMMON_SUB_STRING = null;
+			METHOD_LONGEST_COMMON_SUB_STRING, METHOD_SUBSTRACT = null;
 
 	@BeforeClass
 	static void beforeClass() throws NoSuchMethodException {
@@ -78,6 +78,8 @@ public class KeyStoreSslReportTest {
 		//
 		(METHOD_LONGEST_COMMON_SUB_STRING = clz.getDeclaredMethod("longestCommonSubstring", String.class, String.class))
 				.setAccessible(true);
+		//
+		(METHOD_SUBSTRACT = clz.getDeclaredMethod("substract", Date.class, Date.class)).setAccessible(true);
 		//
 	}
 
@@ -406,7 +408,9 @@ public class KeyStoreSslReportTest {
 					|| Boolean.logicalAnd(Objects.equals(name, "orElse"),
 							Arrays.equals(parameterTypes, new Class<?>[] { Optional.class, Object.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "getEntry"),
-							Arrays.equals(parameterTypes, new Class<?>[] { String.class }))) {
+							Arrays.equals(parameterTypes, new Class<?>[] { String.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "substract"),
+							Arrays.equals(parameterTypes, new Class<?>[] { Date.class, Date.class }))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
@@ -513,6 +517,13 @@ public class KeyStoreSslReportTest {
 	public void testToCharArray() throws IllegalAccessException, InvocationTargetException {
 		//
 		Assert.assertNotNull(invoke(METHOD_TO_CHAR_ARRAY, null, ""));
+		//
+	}
+
+	@Test
+	public void testSubtract() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNull(invoke(METHOD_SUBSTRACT, null, new Date(), null));
 		//
 	}
 
