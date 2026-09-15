@@ -135,7 +135,8 @@ public class KeyStoreSslReport {
 					//
 					info(LOG, "HTTPS     ={} {}", getKey(temp = getEntry(url)), format(df, getValue(temp)));
 					//
-					if ((difference = substract(getValue(temp), getNotAfter(x509Certificate))) != null) {
+					if ((difference = substract(getValue(temp), getNotAfter(x509Certificate))) != null
+							&& difference.longValue() != 0) {
 						//
 						info(LOG, "Difference={}",
 								DurationFormatUtils.formatDurationWords(difference.longValue(), false, false));
