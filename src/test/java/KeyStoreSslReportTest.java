@@ -1,4 +1,5 @@
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
@@ -49,7 +50,7 @@ public class KeyStoreSslReportTest {
 
 	private static Method METHOD_GET_NAME, METHOD_GET_CERTIFICATE, METHOD_LOAD, METHOD_IS_KEY_ENTRY,
 			METHOD_IS_CERTIFICATE_ENTRY, METHOD_IS_VALID, METHOD_FORMAT, METHOD_TO_CHAR_ARRAY,
-			METHOD_LONGEST_COMMON_SUB_STRING, METHOD_SUBSTRACT = null;
+			METHOD_LONGEST_COMMON_SUB_STRING, METHOD_SUBSTRACT, METHOD_GET_ABSOLUTE_PATH = null;
 
 	@BeforeClass
 	static void beforeClass() throws NoSuchMethodException {
@@ -79,6 +80,8 @@ public class KeyStoreSslReportTest {
 				.setAccessible(true);
 		//
 		(METHOD_SUBSTRACT = clz.getDeclaredMethod("substract", Date.class, Date.class)).setAccessible(true);
+		//
+		(METHOD_GET_ABSOLUTE_PATH = clz.getDeclaredMethod("getAbsolutePath", File.class)).setAccessible(true);
 		//
 	}
 
@@ -523,6 +526,13 @@ public class KeyStoreSslReportTest {
 	public void testSubtract() throws IllegalAccessException, InvocationTargetException {
 		//
 		Assert.assertNull(invoke(METHOD_SUBSTRACT, null, new Date(), null));
+		//
+	}
+
+	@Test
+	public void testGetAbsolutePath() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNotNull(invoke(METHOD_GET_ABSOLUTE_PATH, null, new File(".")));
 		//
 	}
 

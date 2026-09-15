@@ -71,7 +71,7 @@ public class KeyStoreSslReport {
 		//
 		final File file = testAndApply(Objects::nonNull, trustStorePath, File::new, null);
 		//
-		info(LOG, "File      ={}", file != null ? file.getAbsoluteFile() : null);
+		info(LOG, "File      ={}", getAbsolutePath(file));
 		//
 		Map<String, X509Certificate> map = null;
 		//
@@ -148,7 +148,10 @@ public class KeyStoreSslReport {
 				//
 		} // try
 			//
+	}
 
+	private static String getAbsolutePath(final File instance) {
+		return instance != null && instance.getPath() != null ? instance.getAbsolutePath() : null;
 	}
 
 	private static Long substract(final Date a, final Date b) {
