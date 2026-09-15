@@ -617,7 +617,7 @@ public class KeyStoreSslReport {
 		final boolean conditionA = or(field, Objects::isNull, f -> Narcissus.getField(a, f) != null);
 		//
 		final boolean conditionB = or(field, Objects::isNull,
-				f -> and(f, Objects::nonNull, g -> Narcissus.getField(b, g) != null));
+				f -> and(b, Objects::nonNull, g -> Narcissus.getField(g, f) != null));
 		//
 		for (int i = 0; and(conditionA, (value, index) -> index < StringUtils.length(value), a, i); i++) {
 			//
