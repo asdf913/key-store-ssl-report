@@ -455,7 +455,7 @@ public class KeyStoreSslReportTest {
 
 	@Test
 	public void testMain() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException,
-			XPathExpressionException, ParserConfigurationException, SAXException, URISyntaxException {
+			XPathExpressionException, ParserConfigurationException, SAXException {
 		//
 		KeyStoreSslReport.main(new String[] { cast(String.class, Narcissus.allocateInstance(String.class)), "=", "= ",
 				" =", "1=2", "1==" });
