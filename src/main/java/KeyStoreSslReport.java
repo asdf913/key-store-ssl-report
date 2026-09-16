@@ -85,8 +85,7 @@ public class KeyStoreSslReport {
 			//
 			File file = new File(get(map, "config"));
 			//
-			final Document document = db != null && file != null && file.exists() && file.isFile() ? db.parse(file)
-					: null;
+			final Document document = db != null && file.exists() && file.isFile() ? db.parse(file) : null;
 			//
 			final XPathFactory xpf = XPathFactory.newDefaultInstance();
 			//
