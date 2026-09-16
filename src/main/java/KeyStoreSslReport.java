@@ -79,9 +79,7 @@ public class KeyStoreSslReport {
 		//
 		if (containsKey(map, "config")) {
 			//
-			final DocumentBuilderFactory dbf = DocumentBuilderFactory.newDefaultInstance();
-			//
-			final DocumentBuilder db = dbf != null ? dbf.newDocumentBuilder() : null;
+			final DocumentBuilder db = newDocumentBuilder(DocumentBuilderFactory.newDefaultInstance());
 			//
 			File file = new File(get(map, "config"));
 			//
@@ -141,6 +139,11 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static DocumentBuilder newDocumentBuilder(final DocumentBuilderFactory instance)
+			throws ParserConfigurationException {
+		return instance != null ? instance.newDocumentBuilder() : null;
 	}
 
 	private static Object evaluate(final XPath instance, final String string, final Object object, final QName qName)

@@ -31,6 +31,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -404,6 +405,10 @@ public class KeyStoreSslReportTest {
 					//
 					add(collection, Narcissus.allocateInstance(Class.forName("sun.security.x509.X509CertImpl")));
 					//
+				} else if (Objects.equals(parameterType, DocumentBuilderFactory.class)) {
+					//
+					add(collection, Narcissus.allocateInstance(getClass(DocumentBuilderFactory.newDefaultInstance())));
+					//
 				} else {
 					//
 					add(collection, Narcissus.allocateInstance(parameterType));
@@ -424,7 +429,9 @@ public class KeyStoreSslReportTest {
 					|| Boolean.logicalAnd(Objects.equals(name, "getEntry"),
 							Arrays.equals(parameterTypes, new Class<?>[] { String.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "substract"),
-							Arrays.equals(parameterTypes, new Class<?>[] { Date.class, Date.class }))) {
+							Arrays.equals(parameterTypes, new Class<?>[] { Date.class, Date.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "newDocumentBuilder"),
+							Arrays.equals(parameterTypes, new Class<?>[] { DocumentBuilderFactory.class }))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
