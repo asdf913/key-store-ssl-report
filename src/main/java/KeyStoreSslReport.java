@@ -116,7 +116,7 @@ public class KeyStoreSslReport {
 						//
 					} // if
 						//
-					main(keyStore, node.getTextContent());
+					perform(keyStore, node.getTextContent());
 					//
 					info(LOG, "");
 					//
@@ -136,7 +136,7 @@ public class KeyStoreSslReport {
 				//
 				load(keyStore, is, toCharArray(get(map, "password")));
 				//
-				main(keyStore, get(map, "url"));
+				perform(keyStore, get(map, "url"));
 				//
 			} // try
 				//
@@ -158,7 +158,7 @@ public class KeyStoreSslReport {
 		return instance != null && instance.containsKey(key);
 	}
 
-	private static void main(final KeyStore keyStore, final String url) throws KeyStoreException, IOException {
+	private static void perform(final KeyStore keyStore, final String url) throws KeyStoreException, IOException {
 		//
 		String alias, lcs = null;
 		//
