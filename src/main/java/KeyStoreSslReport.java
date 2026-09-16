@@ -35,6 +35,14 @@ import java.util.stream.Stream;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.security.auth.x500.X500Principal;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -47,6 +55,10 @@ import org.apache.commons.validator.routines.DomainValidator;
 import org.d2ab.function.ObjIntPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import io.github.toolfactory.narcissus.Narcissus;
 
@@ -60,32 +72,93 @@ public class KeyStoreSslReport {
 
 	private static final Logger LOG = LoggerFactory.getLogger(KeyStoreSslReport.class);
 
-	public static void main(final String[] args)
-			throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+	public static void main(final String[] args) throws KeyStoreException, IOException, NoSuchAlgorithmException,
+			CertificateException, ParserConfigurationException, SAXException, XPathExpressionException {
 		//
-		final Map<String, String> argumentMap = toMap(args);
+		final Map<String, String> map = toMap(args);
 		//
-		final String path = get(argumentMap, "keyStore");
-		//
-		final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-		//
-		final File file = testAndApply(Objects::nonNull, path, File::new, null);
-		//
-		info(LOG, "File      ={}", getAbsolutePath(file));
-		//
-		try (final InputStream is = testAndApply(Objects::nonNull, file, FileInputStream::new, null)) {
+		if (containsKey(map, "config")) {
 			//
-			load(keyStore, is, toCharArray(get(argumentMap, "password")));
+			final DocumentBuilderFactory dbf = DocumentBuilderFactory.newDefaultInstance();
 			//
-			main(keyStore, get(argumentMap, "url"));
+			final DocumentBuilder db = dbf != null ? dbf.newDocumentBuilder() : null;
 			//
-		} // try
+			File file = new File(get(map, "config"));
+			//
+			final Document document = db != null && file != null && file.exists() && file.isFile() ? db.parse(file)
+					: null;
+			//
+			final XPathFactory xpf = XPathFactory.newDefaultInstance();
+			//
+			final XPath xp = xpf != null ? xpf.newXPath() : null;
+			//
+			final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			//
+			info(LOG, "File      ={}", getAbsolutePath(file = testAndApply(Objects::nonNull,
+					Objects.toString(evaluate(xp, "/*/keyStore", document)), File::new, null)));
+			//
+			info(LOG, "");
+			//
+			try (final InputStream is = testAndApply(x -> x != null && x.exists(), file, FileInputStream::new, null)) {
+				//
+				load(keyStore, is, toCharArray(get(map, Objects.toString(evaluate(xp, "/*/password", document)))));
+				//
+				final NodeList nodeList = cast(NodeList.class,
+						evaluate(xp, "/*/urls/url", document, XPathConstants.NODESET));
+				//
+				Node node = null;
+				//
+				for (int i = 0; nodeList != null && i < nodeList.getLength(); i++) {
+					//
+					if ((node = nodeList.item(i)) == null) {
+						//
+						continue;
+						//
+					} // if
+						//
+					main(keyStore, node.getTextContent());
+					//
+					info(LOG, "");
+					//
+				} // for
+					//
+			} // try
+				//
+		} else {
+			//
+			final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			//
+			final File file = testAndApply(Objects::nonNull, get(map, "keyStore"), File::new, null);
+			//
+			info(LOG, "File      ={}", getAbsolutePath(file));
+			//
+			try (final InputStream is = testAndApply(Objects::nonNull, file, FileInputStream::new, null)) {
+				//
+				load(keyStore, is, toCharArray(get(map, "password")));
+				//
+				main(keyStore, get(map, "url"));
+				//
+			} // try
+				//
+		} // if
 			//
 	}
 
+	private static Object evaluate(final XPath instance, final String string, final Object object, final QName qName)
+			throws XPathExpressionException {
+		return instance != null && object != null ? instance.evaluate(string, object, qName) : null;
+	}
+
+	private static Object evaluate(final XPath instance, final String string, final Object object)
+			throws XPathExpressionException {
+		return instance != null && object != null ? instance.evaluate(string, object) : null;
+	}
+
+	private static boolean containsKey(final Map<?, ?> instance, final Object key) {
+		return instance != null && instance.containsKey(key);
+	}
+
 	private static void main(final KeyStore keyStore, final String url) throws KeyStoreException, IOException {
-		//
-		final Enumeration<String> aliases = aliases(keyStore);
 		//
 		String alias, lcs = null;
 		//
@@ -95,9 +168,21 @@ public class KeyStoreSslReport {
 		//
 		Date notAfter = null;
 		//
-		info(LOG, "URL       ={}", url);
+		final Field field = testAndApply(x -> size(x) == 1,
+				collect(filter(
+						stream(testAndApply(Objects::nonNull, getClass(url), FieldUtils::getAllFieldsList, null)),
+						f -> Objects.equals(getName(f), VALUE)), Collectors.toList()),
+				x -> get(x, 0), null);
 		//
+		if (url == null || (field != null && Narcissus.getField(url, field) != null)) {
+			//
+			info(LOG, "URL       ={}", url);
+			//
+		} // if
+			//
 		Map<String, X509Certificate> map = null;
+		//
+		final Enumeration<String> aliases = aliases(keyStore);
 		//
 		while (hasMoreElements(aliases)) {
 			//

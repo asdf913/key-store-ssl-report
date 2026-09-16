@@ -31,6 +31,9 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -43,6 +46,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.xml.sax.SAXException;
 
 import com.google.common.reflect.Reflection;
 
@@ -157,7 +161,7 @@ public class KeyStoreSslReportTest {
 				//
 				return null;
 				//
-			} else if (proxy instanceof Entry && contains(Arrays.asList("getValue", "getKey"), "getValue")) {
+			} else if (proxy instanceof Entry && contains(Arrays.asList("getValue", "getKey"), name)) {
 				//
 				return null;
 				//
@@ -173,6 +177,10 @@ public class KeyStoreSslReportTest {
 					//
 				} // if
 					//
+			} else if (proxy instanceof XPath && Objects.equals(name, "evaluate")) {
+				//
+				return null;
+				//
 			} // if
 				//
 			throw new Throwable(name);
@@ -435,10 +443,15 @@ public class KeyStoreSslReportTest {
 	}
 
 	@Test
-	public void testMain() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+	public void testMain() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException,
+			XPathExpressionException, ParserConfigurationException, SAXException {
 		//
 		KeyStoreSslReport.main(new String[] { cast(String.class, Narcissus.allocateInstance(String.class)), "=", "= ",
 				" =", "1=2", "1==" });
+		//
+		KeyStoreSslReport.main(new String[] { "config=." });
+		//
+		KeyStoreSslReport.main(new String[] { "config=pom.xml" });
 		//
 	}
 
