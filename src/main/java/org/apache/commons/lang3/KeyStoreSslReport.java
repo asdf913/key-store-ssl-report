@@ -91,7 +91,7 @@ public class KeyStoreSslReport {
 				//
 				return;
 				//
-			} else if (!file.exists()) {
+			} else if (!exists(file)) {
 				//
 				error(LOG, file + " not exists");
 				//
@@ -128,7 +128,7 @@ public class KeyStoreSslReport {
 			//
 			info(LOG, "");
 			//
-			try (final InputStream is = testAndApply(x -> x != null && x.exists(), file, FileInputStream::new, null)) {
+			try (final InputStream is = testAndApply(x -> exists(x), file, FileInputStream::new, null)) {
 				//
 				load(keyStore, is, toCharArray(get(map, Objects.toString(evaluate(xp, "/*/password", document)))));
 				//
@@ -171,6 +171,10 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static boolean exists(final File instance) {
+		return instance != null && instance.getPath() != null && instance.exists();
 	}
 
 	private static void error(final Logger instance, final String msg) {
