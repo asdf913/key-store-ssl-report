@@ -59,6 +59,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.j256.simplemagic.ContentInfo;
+import com.j256.simplemagic.ContentInfoUtil;
+
 import io.github.toolfactory.narcissus.Narcissus;
 
 public class KeyStoreSslReport {
@@ -82,8 +85,37 @@ public class KeyStoreSslReport {
 			//
 			File file = testAndApply(Objects::nonNull, get(map, "config"), File::new, null);
 			//
-			final Document document = db != null && file != null && file.exists() && file.isFile() ? db.parse(file)
-					: null;
+			if (file == null) {
+				//
+				error(LOG, "file is null");
+				//
+				return;
+				//
+			} else if (!file.exists()) {
+				//
+				error(LOG, file + " not exists");
+				//
+				return;
+				//
+			} else if (!file.isFile()) {
+				//
+				error(LOG, file + " is not a regular file");
+				//
+				return;
+				//
+			} // if
+				//
+			final ContentInfo ci = new ContentInfoUtil().findMatch(file);
+			//
+			if (ci == null || !Objects.equals(ci.getMessage(), "exported SGML document text")) {
+				//
+				error(LOG, file + " is not a XML file");
+				//
+				return;
+				//
+			} // if
+				//
+			final Document document = db != null ? db.parse(file) : null;
 			//
 			final XPathFactory xpf = XPathFactory.newDefaultInstance();
 			//
@@ -139,6 +171,12 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static void error(final Logger instance, final String msg) {
+		if (instance != null) {
+			instance.error(msg);
+		}
 	}
 
 	private static DocumentBuilder newDocumentBuilder(final DocumentBuilderFactory instance)

@@ -10,9 +10,13 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.CodeSource;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.ProtectionDomain;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
@@ -451,7 +455,7 @@ public class KeyStoreSslReportTest {
 
 	@Test
 	public void testMain() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException,
-			XPathExpressionException, ParserConfigurationException, SAXException {
+			XPathExpressionException, ParserConfigurationException, SAXException, URISyntaxException {
 		//
 		KeyStoreSslReport.main(new String[] { cast(String.class, Narcissus.allocateInstance(String.class)), "=", "= ",
 				" =", "1=2", "1==" });
@@ -459,6 +463,19 @@ public class KeyStoreSslReportTest {
 		KeyStoreSslReport.main(new String[] { "config=." });
 		//
 		KeyStoreSslReport.main(new String[] { "config=pom.xml" });
+		//
+		final Class<?> clz = getClass();
+		//
+		final String name = clz != null ? clz.getName() : null;
+		//
+		final ProtectionDomain pd = clz != null ? clz.getProtectionDomain() : null;
+		//
+		final CodeSource cs = pd != null ? pd.getCodeSource() : null;
+		//
+		final URL location = cs != null ? cs.getLocation() : null;
+		//
+		KeyStoreSslReport.main(new String[] { "config=" + StringUtils.join(location != null ? location.getFile() : null,
+				StringUtils.joinWith(".", name != null ? name.replace('.', '/') : null, "class")) });
 		//
 	}
 
