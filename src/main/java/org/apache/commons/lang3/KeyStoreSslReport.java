@@ -80,9 +80,10 @@ public class KeyStoreSslReport {
 			//
 			final DocumentBuilder db = newDocumentBuilder(DocumentBuilderFactory.newDefaultInstance());
 			//
-			File file = new File(get(map, "config"));
+			File file = testAndApply(Objects::nonNull, get(map, "config"), File::new, null);
 			//
-			final Document document = db != null && file.exists() && file.isFile() ? db.parse(file) : null;
+			final Document document = db != null && file != null && file.exists() && file.isFile() ? db.parse(file)
+					: null;
 			//
 			final XPathFactory xpf = XPathFactory.newDefaultInstance();
 			//
