@@ -50,6 +50,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.google.common.reflect.Reflection;
@@ -182,6 +183,10 @@ public class KeyStoreSslReportTest {
 				} // if
 					//
 			} else if (proxy instanceof XPath && Objects.equals(name, "evaluate")) {
+				//
+				return null;
+				//
+			} else if (proxy instanceof Node && Objects.equals(name, "getTextContent")) {
 				//
 				return null;
 				//

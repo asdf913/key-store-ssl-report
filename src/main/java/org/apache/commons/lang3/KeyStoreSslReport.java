@@ -135,17 +135,9 @@ public class KeyStoreSslReport {
 				final NodeList nodeList = cast(NodeList.class,
 						evaluate(xp, "/*/urls/url", document, XPathConstants.NODESET));
 				//
-				Node node = null;
-				//
 				for (int i = 0; nodeList != null && i < nodeList.getLength(); i++) {
 					//
-					if ((node = nodeList.item(i)) == null) {
-						//
-						continue;
-						//
-					} // if
-						//
-					perform(keyStore, node.getTextContent());
+					perform(keyStore, getTextContent(nodeList.item(i)));
 					//
 					info(LOG, "");
 					//
@@ -171,6 +163,10 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static String getTextContent(final Node instance) {
+		return instance != null ? instance.getTextContent() : null;
 	}
 
 	private static boolean exists(final File instance) {
