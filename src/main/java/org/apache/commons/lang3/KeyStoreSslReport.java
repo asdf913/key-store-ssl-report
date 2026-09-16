@@ -1,3 +1,5 @@
+package org.apache.commons.lang3;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -44,9 +46,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
