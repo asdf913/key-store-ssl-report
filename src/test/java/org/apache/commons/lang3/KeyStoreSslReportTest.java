@@ -40,6 +40,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -416,6 +417,10 @@ public class KeyStoreSslReportTest {
 				} else if (Objects.equals(parameterType, DocumentBuilderFactory.class)) {
 					//
 					add(collection, Narcissus.allocateInstance(getClass(DocumentBuilderFactory.newDefaultInstance())));
+					//
+				} else if (Objects.equals(parameterType, XPathFactory.class)) {
+					//
+					add(collection, Narcissus.allocateInstance(getClass(XPathFactory.newDefaultInstance())));
 					//
 				} else {
 					//

@@ -117,9 +117,7 @@ public class KeyStoreSslReport {
 				//
 			final Document document = db != null ? db.parse(file) : null;
 			//
-			final XPathFactory xpf = XPathFactory.newDefaultInstance();
-			//
-			final XPath xp = xpf != null ? xpf.newXPath() : null;
+			final XPath xp = newXPath(XPathFactory.newDefaultInstance());
 			//
 			final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			//
@@ -163,6 +161,25 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static XPath newXPath(final XPathFactory instance) {
+		//
+		if (instance == null) {
+			//
+			
+			return null;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> size(x) == 1,
+				collect(filter(
+						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
+						f -> Objects.equals(getName(f), "_featureManager")), Collectors.toList()),
+				x -> get(x, 0), null);
+		//
+		return field == null || Narcissus.getField(instance, field) != null ? instance.newXPath() : null;
+		//
 	}
 
 	private static String getTextContent(final Node instance) {
