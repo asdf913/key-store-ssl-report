@@ -167,7 +167,6 @@ public class KeyStoreSslReport {
 		//
 		if (instance == null) {
 			//
-			
 			return null;
 			//
 		} // if
