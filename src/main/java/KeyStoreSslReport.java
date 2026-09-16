@@ -65,58 +65,61 @@ public class KeyStoreSslReport {
 		//
 		final Map<String, String> argumentMap = toMap(args);
 		//
-		final String trustStorePath = get(argumentMap, "trustStore");
+		final String path = get(argumentMap, "keyStore");
 		//
-		final KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+		final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 		//
-		final File file = testAndApply(Objects::nonNull, trustStorePath, File::new, null);
+		final File file = testAndApply(Objects::nonNull, path, File::new, null);
 		//
 		info(LOG, "File      ={}", getAbsolutePath(file));
 		//
-		Map<String, X509Certificate> map = null;
-		//
 		try (final InputStream is = testAndApply(Objects::nonNull, file, FileInputStream::new, null)) {
 			//
-			load(keystore, is, toCharArray(get(argumentMap, "password")));
+			load(keyStore, is, toCharArray(get(argumentMap, "password")));
 			//
-			final Enumeration<String> aliases = aliases(keystore);
-			//
-			String alias, lcs = null;
-			//
-			Certificate certificate = null;
-			//
-			X509Certificate x509Certificate = null;
-			//
-			Date notAfter = null;
-			//
-			final String url = get(argumentMap, "url");
-			//
-			info(LOG, "URL       ={}", url);
-			//
-			while (hasMoreElements(aliases)) {
-				//
-				if ((isCertificateEntry(keystore, alias = nextElement(aliases)) || isKeyEntry(keystore, alias))
-						&& (certificate = getCertificate(keystore, alias)) instanceof X509Certificate
-						&& (x509Certificate = (X509Certificate) certificate) != null
-						&& isValid(DomainValidator.getInstance(),
-								lcs = longestCommonSubstring(getName(getSubjectX500Principal(x509Certificate)), url))
-						&& ((notAfter = getNotAfter(
-								get(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs))) == null
-								|| ObjectUtils.compare(getNotAfter(x509Certificate), notAfter) > 0)) {
-					//
-					put(map, lcs, x509Certificate);
-					//
-				} // if
-					//
-			} // while
-				//
-			final String longest = orElse(max(stream(keySet(map)), Comparator.comparingInt(StringUtils::length)), "");
-			//
-			info(LOG, url, collect(filter(stream(entrySet(map)), x -> Objects.equals(getKey(x), longest)),
-					Collectors.toMap(x -> getKey(x), x -> getValue(x))));
+			main(keyStore, get(argumentMap, "url"));
 			//
 		} // try
 			//
+	}
+
+	private static void main(final KeyStore keyStore, final String url) throws KeyStoreException, IOException {
+		//
+		final Enumeration<String> aliases = aliases(keyStore);
+		//
+		String alias, lcs = null;
+		//
+		Certificate certificate = null;
+		//
+		X509Certificate x509Certificate = null;
+		//
+		Date notAfter = null;
+		//
+		info(LOG, "URL       ={}", url);
+		//
+		Map<String, X509Certificate> map = null;
+		//
+		while (hasMoreElements(aliases)) {
+			//
+			if ((isCertificateEntry(keyStore, alias = nextElement(aliases)) || isKeyEntry(keyStore, alias))
+					&& (certificate = getCertificate(keyStore, alias)) instanceof X509Certificate
+					&& (x509Certificate = (X509Certificate) certificate) != null
+					&& isValid(DomainValidator.getInstance(),
+							lcs = longestCommonSubstring(getName(getSubjectX500Principal(x509Certificate)), url))
+					&& ((notAfter = getNotAfter(get(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs))) == null
+							|| ObjectUtils.compare(getNotAfter(x509Certificate), notAfter) > 0)) {
+				//
+				put(map, lcs, x509Certificate);
+				//
+			} // if
+				//
+		} // while
+			//
+		final String longest = orElse(max(stream(keySet(map)), Comparator.comparingInt(StringUtils::length)), "");
+		//
+		info(LOG, url, collect(filter(stream(entrySet(map)), x -> Objects.equals(getKey(x), longest)),
+				Collectors.toMap(x -> getKey(x), x -> getValue(x))));
+		//
 	}
 
 	private static void info(final Logger logger, final String url, final Map<String, X509Certificate> map)
