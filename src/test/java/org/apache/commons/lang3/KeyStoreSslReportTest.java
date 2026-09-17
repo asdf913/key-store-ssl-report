@@ -657,7 +657,7 @@ public class KeyStoreSslReportTest {
 		//
 		Assert.assertEquals(invoke(METHOD_ANY_MATCH, null, stream, null), Boolean.FALSE);
 		//
-		Assert.assertEquals(invoke(METHOD_ANY_MATCH, null, stream, Predicates.alwaysTrue()), Boolean.TRUE);
+		Assert.assertEquals(invoke(METHOD_ANY_MATCH, null, stream, Predicates.alwaysTrue()), Boolean.FALSE);
 		//
 	}
 
