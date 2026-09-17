@@ -162,8 +162,7 @@ public class KeyStoreSslReport {
 				//
 				final Long difference = result != null ? result.difference : null;
 				//
-				info(LOG, "File    {}={}",
-						difference != null && difference.longValue() > 0 ? StringUtils.repeat(' ', 2) : "",
+				info(LOG, "File    {}={}", longValue(difference, 0) > 0 ? StringUtils.repeat(' ', 2) : "",
 						getAbsolutePath(file));
 				//
 				info(LOG, result);
@@ -172,6 +171,10 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static long longValue(final Number instance, final long defaultValue) {
+		return instance != null ? instance.longValue() : defaultValue;
 	}
 
 	private static String getMimeType(final ContentInfo instance) {
@@ -325,7 +328,7 @@ public class KeyStoreSslReport {
 		//
 		final Long difference = result != null ? result.difference : null;
 		//
-		final String padding = difference != null && difference.longValue() > 0 ? StringUtils.repeat(' ', 2) : "";
+		final String padding = longValue(difference, 0) > 0 ? StringUtils.repeat(' ', 2) : "";
 		//
 		info(logger, "URL     {}={}", padding, StringUtils.defaultString(result != null ? result.url : null));
 		//
@@ -340,10 +343,10 @@ public class KeyStoreSslReport {
 				StringUtils.defaultString(getKey(entry = result != null ? result.urlDate : null)),
 				StringUtils.defaultString(format(df, getValue(entry))));
 		//
-		if (difference != null && difference.longValue() > 0) {
+		if (longValue(difference, 0) > 0) {
 			//
 			info(logger, "Difference={}",
-					DurationFormatUtils.formatDurationWords(difference.longValue(), false, false));
+					DurationFormatUtils.formatDurationWords(longValue(difference, 0), false, false));
 			//
 		} // if
 			//
@@ -380,11 +383,10 @@ public class KeyStoreSslReport {
 			//
 			info(logger, "HTTPS     ={} {}", getKey(temp = getEntry(url)), format(df, getValue(temp)));
 			//
-			if ((difference = substract(getValue(temp), getNotAfter(x509Certificate))) != null
-					&& difference.longValue() > 0) {
+			if (longValue(difference = substract(getValue(temp), getNotAfter(x509Certificate)), 0) > 0) {
 				//
 				info(logger, "Difference={}",
-						DurationFormatUtils.formatDurationWords(difference.longValue(), false, false));
+						DurationFormatUtils.formatDurationWords(longValue(difference, 0), false, false));
 				//
 			} // if
 				//

@@ -267,6 +267,10 @@ public class KeyStoreSslReportTest {
 					//
 					add(collection, Integer.valueOf(0));
 					//
+				} else if (Objects.equals(parameterType, Long.TYPE)) {
+					//
+					add(collection, Long.valueOf(0));
+					//
 				} else if (Objects.equals(parameterType, Boolean.TYPE)) {
 					//
 					add(collection, Boolean.TRUE);
@@ -283,7 +287,7 @@ public class KeyStoreSslReportTest {
 			//
 			toString = Objects.toString(m);
 			//
-			if (contains(Arrays.asList(Boolean.TYPE, Integer.TYPE), m.getReturnType())
+			if (contains(Arrays.asList(Boolean.TYPE, Integer.TYPE, Long.TYPE), m.getReturnType())
 					|| Boolean.logicalAnd(Objects.equals(name = getName(m), "getEntry"),
 							Arrays.equals(parameterTypes, new Class<?>[] { String.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "perform"),
@@ -398,6 +402,10 @@ public class KeyStoreSslReportTest {
 					//
 					add(collection, Integer.valueOf(0));
 					//
+				} else if (Objects.equals(parameterType, Long.TYPE)) {
+					//
+					add(collection, Long.valueOf(0));
+					//
 				} else if (Objects.equals(parameterType, Boolean.TYPE)) {
 					//
 					add(collection, Boolean.TRUE);
@@ -432,6 +440,10 @@ public class KeyStoreSslReportTest {
 					//
 					add(collection, Narcissus.allocateInstance(getClass(XPathFactory.newDefaultInstance())));
 					//
+				} else if (Objects.equals(parameterType, Number.class)) {
+					//
+					add(collection, Narcissus.allocateInstance(Long.class));
+					//
 				} else {
 					//
 					add(collection, Narcissus.allocateInstance(parameterType));
@@ -444,7 +456,7 @@ public class KeyStoreSslReportTest {
 			//
 			toString = Objects.toString(m);
 			//
-			if (contains(Arrays.asList(Boolean.TYPE, Integer.TYPE), m.getReturnType())
+			if (contains(Arrays.asList(Boolean.TYPE, Integer.TYPE, Long.TYPE), m.getReturnType())
 					|| Boolean.logicalAnd(Objects.equals(name = getName(m), "getClass"),
 							Arrays.equals(parameterTypes, new Class<?>[] { Object.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "orElse"),
