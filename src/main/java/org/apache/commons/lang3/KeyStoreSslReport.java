@@ -116,7 +116,7 @@ public class KeyStoreSslReport {
 			final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			//
 			try (final InputStream is = testAndApply(
-					x -> exists(x), file = testAndApply(Objects::nonNull,
+					x -> x != null && exists(x) && x.isFile(), file = testAndApply(Objects::nonNull,
 							Objects.toString(evaluate(xp, "/*/keyStore", document)), File::new, null),
 					FileInputStream::new, null)) {
 				//
