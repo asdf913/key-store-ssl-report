@@ -38,6 +38,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.InflaterInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -90,7 +91,7 @@ public class KeyStoreSslReport {
 			//
 			final BooleanObject booleanObject = validate(file);
 			//
-			if (!BooleanUtils.toBooleanDefaultIfNull(booleanObject != null ? booleanObject.booleanValue : null, true)) {
+			if (!BooleanUtils.toBooleanDefaultIfNull(BooleanObject.getBooleanValue(booleanObject), true)) {
 				//
 				error(LOG, Objects.toString(booleanObject != null ? booleanObject.object : null));
 				//
@@ -189,6 +190,10 @@ public class KeyStoreSslReport {
 			//
 			return instance;
 			//
+		}
+
+		private static Boolean getBooleanValue(final BooleanObject instance) {
+			return instance != null ? instance.booleanValue : null;
 		}
 
 	}
