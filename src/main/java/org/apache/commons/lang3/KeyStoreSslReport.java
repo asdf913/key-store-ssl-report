@@ -111,8 +111,8 @@ public class KeyStoreSslReport {
 				//
 			final ContentInfo ci = new ContentInfoUtil().findMatch(file);
 			//
-			if (ci == null || Boolean.logicalAnd(!Objects.equals(ci.getMessage(), "exported SGML document text"),
-					!Objects.equals(ci.getMimeType(), "application/xml"))) {
+			if (Boolean.logicalAnd(!Objects.equals(getMessage(ci), "exported SGML document text"),
+					!Objects.equals(getMimeType(ci), "application/xml"))) {
 				//
 				error(LOG, file + " is not a XML file");
 				//
@@ -172,6 +172,14 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static String getMimeType(final ContentInfo instance) {
+		return instance != null ? instance.getMimeType() : null;
+	}
+
+	private static String getMessage(final ContentInfo instance) {
+		return instance != null ? instance.getMessage() : null;
 	}
 
 	private static XPath newXPath(final XPathFactory instance) {
