@@ -86,8 +86,6 @@ public class KeyStoreSslReport {
 		//
 		if (containsKey(map, "config")) {
 			//
-			final DocumentBuilder db = newDocumentBuilder(DocumentBuilderFactory.newDefaultInstance());
-			//
 			File file = testAndApply(Objects::nonNull, get(map, "config"), File::new, null);
 			//
 			if (file == null) {
@@ -121,7 +119,7 @@ public class KeyStoreSslReport {
 				//
 			} // if
 				//
-			final Document document = db != null ? db.parse(file) : null;
+			final Document document = parse(newDocumentBuilder(DocumentBuilderFactory.newDefaultInstance()), file);
 			//
 			final XPath xp = newXPath(XPathFactory.newDefaultInstance());
 			//
@@ -196,6 +194,25 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static Document parse(final DocumentBuilder instance, final File file) throws SAXException, IOException {
+		//
+		if (instance == null) {
+			//
+			return null;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> size(x) == 1,
+				collect(filter(
+						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
+						f -> Objects.equals(getName(f), "domParser")), Collectors.toList()),
+				x -> get(x, 0), null);
+		//
+		return (field == null || Narcissus.getField(instance, field) != null) && file != null && file.getPath() != null
+				&& exists(file) && file.isFile() ? instance.parse(file) : null;
+		//
 	}
 
 	private static int getLength(final NodeList instance) {

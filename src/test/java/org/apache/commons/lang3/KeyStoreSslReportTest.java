@@ -36,6 +36,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
@@ -65,7 +66,7 @@ public class KeyStoreSslReportTest {
 	private static Method METHOD_GET_NAME, METHOD_GET_CERTIFICATE, METHOD_LOAD, METHOD_IS_KEY_ENTRY,
 			METHOD_IS_CERTIFICATE_ENTRY, METHOD_IS_VALID, METHOD_FORMAT, METHOD_TO_CHAR_ARRAY,
 			METHOD_LONGEST_COMMON_SUB_STRING, METHOD_SUBSTRACT, METHOD_GET_ABSOLUTE_PATH, METHOD_INFO2, METHOD_INFO3,
-			METHOD_ANY_MATCH = null;
+			METHOD_ANY_MATCH, METHOD_NEW_DOCUMENT_BUILDER, METHOD_PARSE = null;
 
 	private static Class<?> CLASS_RESULT = null;
 
@@ -104,6 +105,11 @@ public class KeyStoreSslReportTest {
 				CLASS_RESULT = Class.forName("org.apache.commons.lang3.KeyStoreSslReport$Result"))).setAccessible(true);
 		//
 		(METHOD_ANY_MATCH = clz.getDeclaredMethod("anyMatch", Stream.class, Predicate.class)).setAccessible(true);
+		//
+		(METHOD_NEW_DOCUMENT_BUILDER = clz.getDeclaredMethod("newDocumentBuilder", DocumentBuilderFactory.class))
+				.setAccessible(true);
+		//
+		(METHOD_PARSE = clz.getDeclaredMethod("parse", DocumentBuilder.class, File.class)).setAccessible(true);
 		//
 	}
 
@@ -462,6 +468,13 @@ public class KeyStoreSslReportTest {
 					//
 					add(collection, Narcissus.allocateInstance(getClass(XPathFactory.newDefaultInstance())));
 					//
+				} else if (Objects.equals(parameterType, DocumentBuilder.class)) {
+					//
+					add(collection,
+							Narcissus
+									.allocateInstance(getClass(Narcissus.invokeStaticMethod(METHOD_NEW_DOCUMENT_BUILDER,
+											DocumentBuilderFactory.newDefaultInstance()))));
+					//
 				} else if (Objects.equals(parameterType, Number.class)) {
 					//
 					add(collection, Narcissus.allocateInstance(Long.class));
@@ -671,6 +684,31 @@ public class KeyStoreSslReportTest {
 		Assert.assertEquals(invoke(METHOD_ANY_MATCH, null, stream, null), Boolean.FALSE);
 		//
 		Assert.assertEquals(invoke(METHOD_ANY_MATCH, null, stream, Predicates.alwaysTrue()), Boolean.FALSE);
+		//
+	}
+
+	@Test
+	public void testParse() throws IllegalAccessException, InvocationTargetException {
+		//
+		Object db = Narcissus.allocateInstance(getClass(Narcissus.invokeStaticMethod(METHOD_NEW_DOCUMENT_BUILDER,
+				DocumentBuilderFactory.newDefaultInstance())));
+		//
+		Assert.assertNull(invoke(METHOD_PARSE, null, db, null));
+		//
+		Assert.assertNull(invoke(METHOD_PARSE, null, db, new File(".")));
+		//
+		Assert.assertNull(invoke(METHOD_PARSE, null, db, new File("pom.xml")));
+		//
+		Assert.assertNull(invoke(METHOD_PARSE, null, db = Narcissus.invokeStaticMethod(METHOD_NEW_DOCUMENT_BUILDER,
+				DocumentBuilderFactory.newDefaultInstance()), null));
+		//
+		Assert.assertNull(invoke(METHOD_PARSE, null, db, Narcissus.allocateInstance(File.class)));
+		//
+		Assert.assertNull(invoke(METHOD_PARSE, null, db, new File("a")));
+		//
+		Assert.assertNull(invoke(METHOD_PARSE, null, db, new File(".")));
+		//
+		Assert.assertNotNull(invoke(METHOD_PARSE, null, db, new File("pom.xml")));
 		//
 	}
 
