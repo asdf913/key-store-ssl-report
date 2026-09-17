@@ -52,6 +52,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Predicates;
@@ -110,7 +111,7 @@ public class KeyStoreSslReportTest {
 
 		private Boolean test, containsKey, hasMoreElements, add, anyMatch;
 
-		private Integer size;
+		private Integer size, length;
 
 		@Override
 		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
@@ -206,6 +207,18 @@ public class KeyStoreSslReportTest {
 				//
 				return null;
 				//
+			} else if (proxy instanceof NodeList) {
+				//
+				if (Objects.equals(name, "getLength")) {
+					//
+					return length;
+					//
+				} else if (Objects.equals(name, "item")) {
+					//
+					return null;
+					//
+				} // if
+					//
 			} // if
 				//
 			throw new Throwable(name);

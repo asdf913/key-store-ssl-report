@@ -139,10 +139,10 @@ public class KeyStoreSslReport {
 				//
 				List<Result> results = null;
 				//
-				for (int i = 0; nodeList != null && i < nodeList.getLength(); i++) {
+				for (int i = 0; i < getLength(nodeList); i++) {
 					//
 					add(results = ObjectUtils.getIfNull(results, ArrayList::new),
-							perform2(keyStore, getTextContent(nodeList.item(i))));
+							perform2(keyStore, getTextContent(item(nodeList, i))));
 					//
 				} // for
 					//
@@ -196,6 +196,14 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static int getLength(final NodeList instance) {
+		return instance != null ? instance.getLength() : 0;
+	}
+
+	private static Node item(final NodeList instance, final int index) {
+		return instance != null ? instance.item(index) : null;
 	}
 
 	private static <T> boolean anyMatch(final Stream<T> instance, final Predicate<? super T> predicate) {
