@@ -146,7 +146,9 @@ public class KeyStoreSslReport {
 					//
 				} // for
 					//
-				for (int i = 0; results != null && i < results.size(); i++) {
+				final int size = size(results);
+				//
+				for (int i = 0; i < size; i++) {
 					//
 					if (i == 0) {
 						//
@@ -159,9 +161,9 @@ public class KeyStoreSslReport {
 						//
 					} // if
 						//
-					info(LOG, results.get(i));
+					info(LOG, get(results, i));
 					//
-					if (i < results.size() - 1) {
+					if (i < size - 1) {
 						//
 						info(LOG, "");
 						//
