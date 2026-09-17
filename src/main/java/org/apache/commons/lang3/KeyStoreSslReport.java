@@ -93,7 +93,7 @@ public class KeyStoreSslReport {
 			//
 			if (!BooleanUtils.toBooleanDefaultIfNull(BooleanObject.getBooleanValue(booleanObject), true)) {
 				//
-				error(LOG, Objects.toString(booleanObject != null ? booleanObject.object : null));
+				error(LOG, Objects.toString(BooleanObject.getObject(booleanObject)));
 				//
 				return;
 				//
@@ -194,6 +194,10 @@ public class KeyStoreSslReport {
 
 		private static Boolean getBooleanValue(final BooleanObject instance) {
 			return instance != null ? instance.booleanValue : null;
+		}
+
+		private static Object getObject(final BooleanObject instance) {
+			return instance != null ? instance.object : null;
 		}
 
 	}
