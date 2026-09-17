@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Proxy;
@@ -384,7 +388,16 @@ public class KeyStoreSslReport {
 
 		private String url;
 
-		private Entry<String, Date> keyStoreDate, urlDate;
+		@Target(ElementType.FIELD)
+		@Retention(RetentionPolicy.RUNTIME)
+		private @interface Note {
+			String value();
+		}
+
+		@Note("Key Store Date")
+		private Entry<String, Date> keyStoreDate;
+
+		private Entry<String, Date> urlDate;
 
 		private Long difference;
 
