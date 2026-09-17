@@ -62,10 +62,13 @@ public class KeyStoreSslReportTest {
 
 	private static Method METHOD_GET_NAME, METHOD_GET_CERTIFICATE, METHOD_LOAD, METHOD_IS_KEY_ENTRY,
 			METHOD_IS_CERTIFICATE_ENTRY, METHOD_IS_VALID, METHOD_FORMAT, METHOD_TO_CHAR_ARRAY,
-			METHOD_LONGEST_COMMON_SUB_STRING, METHOD_SUBSTRACT, METHOD_GET_ABSOLUTE_PATH, METHOD_INFO = null;
+			METHOD_LONGEST_COMMON_SUB_STRING, METHOD_SUBSTRACT, METHOD_GET_ABSOLUTE_PATH, METHOD_INFO2,
+			METHOD_INFO3 = null;
+
+	private static Class<?> CLASS_RESULT = null;
 
 	@BeforeClass
-	static void beforeClass() throws NoSuchMethodException {
+	static void beforeClass() throws NoSuchMethodException, ClassNotFoundException {
 		//
 		final Class<?> clz = KeyStoreSslReport.class;
 		//
@@ -95,7 +98,10 @@ public class KeyStoreSslReportTest {
 		//
 		(METHOD_GET_ABSOLUTE_PATH = clz.getDeclaredMethod("getAbsolutePath", File.class)).setAccessible(true);
 		//
-		(METHOD_INFO = clz.getDeclaredMethod("info", Logger.class, String.class, Map.class)).setAccessible(true);
+		(METHOD_INFO2 = clz.getDeclaredMethod("info", Logger.class,
+				CLASS_RESULT = Class.forName("org.apache.commons.lang3.KeyStoreSslReport$Result"))).setAccessible(true);
+		//
+		(METHOD_INFO3 = clz.getDeclaredMethod("info", Logger.class, String.class, Map.class)).setAccessible(true);
 		//
 	}
 
@@ -240,7 +246,7 @@ public class KeyStoreSslReportTest {
 		//
 		Object result = null;
 		//
-		String toString = null;
+		String toString, name = null;
 		//
 		Collection<Object> collection = null;
 		//
@@ -278,8 +284,12 @@ public class KeyStoreSslReportTest {
 			toString = Objects.toString(m);
 			//
 			if (contains(Arrays.asList(Boolean.TYPE, Integer.TYPE), m.getReturnType())
-					|| Boolean.logicalAnd(Objects.equals(getName(m), "getEntry"),
-							Arrays.equals(parameterTypes, new Class<?>[] { String.class }))) {
+					|| Boolean.logicalAnd(Objects.equals(name = getName(m), "getEntry"),
+							Arrays.equals(parameterTypes, new Class<?>[] { String.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "perform"),
+							Arrays.equals(parameterTypes, new Class<?>[] { String.class, Map.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "perform2"),
+							Arrays.equals(parameterTypes, new Class<?>[] { KeyStore.class, String.class }))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
@@ -444,7 +454,11 @@ public class KeyStoreSslReportTest {
 					|| Boolean.logicalAnd(Objects.equals(name, "substract"),
 							Arrays.equals(parameterTypes, new Class<?>[] { Date.class, Date.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "newDocumentBuilder"),
-							Arrays.equals(parameterTypes, new Class<?>[] { DocumentBuilderFactory.class }))) {
+							Arrays.equals(parameterTypes, new Class<?>[] { DocumentBuilderFactory.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "perform"),
+							Arrays.equals(parameterTypes, new Class<?>[] { String.class, Map.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "perform2"),
+							Arrays.equals(parameterTypes, new Class<?>[] { KeyStore.class, String.class }))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
@@ -596,9 +610,19 @@ public class KeyStoreSslReportTest {
 	@Test
 	public void testInfo() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException {
 		//
-		Assert.assertNull(invoke(METHOD_INFO, null, null, null, Collections.singletonMap(null, null)));
+		final Object result = Narcissus.allocateInstance(CLASS_RESULT);
 		//
-		Assert.assertNull(invoke(METHOD_INFO, null, null, null, Collections.singletonMap(null,
+		FieldUtils.writeDeclaredField(result, "difference", Long.valueOf(-1), true);
+		//
+		Assert.assertNull(invoke(METHOD_INFO2, null, null, result));
+		//
+		FieldUtils.writeDeclaredField(result, "difference", Long.valueOf(1), true);
+		//
+		Assert.assertNull(invoke(METHOD_INFO2, null, null, result));
+		//
+		Assert.assertNull(invoke(METHOD_INFO3, null, null, null, Collections.singletonMap(null, null)));
+		//
+		Assert.assertNull(invoke(METHOD_INFO3, null, null, null, Collections.singletonMap(null,
 				Narcissus.allocateInstance(Class.forName("sun.security.x509.X509CertImpl")))));
 		//
 	}

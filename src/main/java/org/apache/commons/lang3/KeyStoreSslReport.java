@@ -150,13 +150,19 @@ public class KeyStoreSslReport {
 			//
 			final File file = testAndApply(Objects::nonNull, get(map, "keyStore"), File::new, null);
 			//
-			info(LOG, "File      ={}", getAbsolutePath(file));
-			//
 			try (final InputStream is = testAndApply(Objects::nonNull, file, FileInputStream::new, null)) {
 				//
 				load(keyStore, is, toCharArray(get(map, "password")));
 				//
-				perform(keyStore, get(map, "url"));
+				final Result result = perform2(keyStore, get(map, "url"));
+				//
+				final Long difference = result != null ? result.difference : null;
+				//
+				info(LOG, "File    {}={}",
+						difference != null && difference.longValue() > 0 ? StringUtils.repeat(' ', 2) : "",
+						getAbsolutePath(file));
+				//
+				info(LOG, result);
 				//
 			} // try
 				//
@@ -264,6 +270,73 @@ public class KeyStoreSslReport {
 		//
 	}
 
+	private static Result perform2(final KeyStore keyStore, final String url) throws KeyStoreException, IOException {
+		//
+		String alias, lcs = null;
+		//
+		Certificate certificate = null;
+		//
+		X509Certificate x509Certificate = null;
+		//
+		Date notAfter = null;
+		//
+		Map<String, X509Certificate> map = null;
+		//
+		final Enumeration<String> aliases = aliases(keyStore);
+		//
+		while (hasMoreElements(aliases)) {
+			//
+			if ((isCertificateEntry(keyStore, alias = nextElement(aliases)) || isKeyEntry(keyStore, alias))
+					&& (certificate = getCertificate(keyStore, alias)) instanceof X509Certificate
+					&& (x509Certificate = (X509Certificate) certificate) != null
+					&& isValid(DomainValidator.getInstance(),
+							lcs = longestCommonSubstring(getName(getSubjectX500Principal(x509Certificate)), url))
+					&& ((notAfter = getNotAfter(get(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs))) == null
+							|| ObjectUtils.compare(getNotAfter(x509Certificate), notAfter) > 0)) {
+				//
+				put(map, lcs, x509Certificate);
+				//
+			} // if
+				//
+		} // while
+			//
+		final String longest = orElse(max(stream(keySet(map)), Comparator.comparingInt(StringUtils::length)), "");
+		//
+		return perform(url, collect(filter(stream(entrySet(map)), x -> Objects.equals(getKey(x), longest)),
+				Collectors.toMap(x -> getKey(x), x -> getValue(x))));
+		//
+	}
+
+	private static void info(final Logger logger, final Result result) throws IOException {
+		//
+		DateFormat df = null;
+		//
+		final Long difference = result != null ? result.difference : null;
+		//
+		final String padding = difference != null && difference.longValue() > 0 ? StringUtils.repeat(' ', 2) : "";
+		//
+		info(logger, "URL     {}={}", padding, StringUtils.defaultString(result != null ? result.url : null));
+		//
+		Entry<String, Date> entry = result != null ? result.keyStoreDate : null;
+		//
+		info(logger, "KeyStore{}={} {}", padding, StringUtils.defaultString(getKey(entry)),
+				StringUtils.defaultString(
+						format(df = ObjectUtils.getIfNull(df, () -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")),
+								getValue(entry))));
+		//
+		info(logger, "HTTPS   {}={} {}", padding,
+				StringUtils.defaultString(getKey(entry = result != null ? result.urlDate : null)),
+				StringUtils.defaultString(format(df, getValue(entry))));
+		//
+		if (difference != null && difference.longValue() > 0) {
+			//
+			info(logger, "Difference={}",
+					DurationFormatUtils.formatDurationWords(difference.longValue(), false, false));
+			//
+		} // if
+			//
+	}
+
 	private static void info(final Logger logger, final String url, final Map<String, X509Certificate> map)
 			throws IOException {
 		//
@@ -296,7 +369,7 @@ public class KeyStoreSslReport {
 			info(logger, "HTTPS     ={} {}", getKey(temp = getEntry(url)), format(df, getValue(temp)));
 			//
 			if ((difference = substract(getValue(temp), getNotAfter(x509Certificate))) != null
-					&& difference.longValue() != 0) {
+					&& difference.longValue() > 0) {
 				//
 				info(logger, "Difference={}",
 						DurationFormatUtils.formatDurationWords(difference.longValue(), false, false));
@@ -305,6 +378,49 @@ public class KeyStoreSslReport {
 				//
 		} // for
 			//
+	}
+
+	private static class Result {
+
+		private String url;
+
+		private Entry<String, Date> keyStoreDate, urlDate;
+
+		private Long difference;
+
+	}
+
+	private static Result perform(final String url, final Map<String, X509Certificate> map) throws IOException {
+		//
+		final Result result = new Result();
+		//
+		result.url = url;
+		//
+		X509Certificate x509Certificate = null;
+		//
+		Entry<String, Date> temp = null;
+		//
+		if (entrySet(map) != null) {
+			//
+			for (final Entry<String, X509Certificate> entry : entrySet(map)) {
+				//
+				if ((x509Certificate = getValue(entry)) == null) {
+					//
+					continue;
+					//
+				} // if
+					//
+				result.urlDate = Pair.of(getKey(temp = getEntry(url)), getValue(temp));
+				//
+				result.difference = substract(getValue(temp),
+						getValue(result.keyStoreDate = Pair.of(getKey(entry), getNotAfter(x509Certificate))));
+				//
+			} // for
+				//
+		} // if
+			//
+		return result;
+		//
 	}
 
 	private static String getAbsolutePath(final File instance) {
