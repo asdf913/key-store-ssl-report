@@ -132,18 +132,9 @@ public class KeyStoreSslReport {
 				//
 				load(keyStore, is, toCharArray(get(map, Objects.toString(evaluate(xp, "/*/password", document)))));
 				//
-				final NodeList nodeList = cast(NodeList.class,
-						evaluate(xp, "/*/urls/url", document, XPathConstants.NODESET));
+				final List<Result> results = getResults(keyStore,
+						cast(NodeList.class, evaluate(xp, "/*/urls/url", document, XPathConstants.NODESET)));
 				//
-				List<Result> results = null;
-				//
-				for (int i = 0; i < getLength(nodeList); i++) {
-					//
-					add(results = ObjectUtils.getIfNull(results, ArrayList::new),
-							perform2(keyStore, getTextContent(item(nodeList, i))));
-					//
-				} // for
-					//
 				final int size = size(results);
 				//
 				for (int i = 0; i < size; i++) {
@@ -190,6 +181,22 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static List<Result> getResults(final KeyStore keyStore, final NodeList nodeList)
+			throws KeyStoreException, IOException {
+		//
+		List<Result> results = null;
+		//
+		for (int i = 0; i < getLength(nodeList); i++) {
+			//
+			add(results = ObjectUtils.getIfNull(results, ArrayList::new),
+					perform2(keyStore, getTextContent(item(nodeList, i))));
+			//
+		} // for
+			//
+		return results;
+		//
 	}
 
 	private static void testAndRun(final boolean condition, final Runnable runnable) {
