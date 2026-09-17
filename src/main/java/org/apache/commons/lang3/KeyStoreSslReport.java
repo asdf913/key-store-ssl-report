@@ -161,12 +161,8 @@ public class KeyStoreSslReport {
 						//
 					info(LOG, get(results, i));
 					//
-					if (i < size - 1) {
-						//
-						info(LOG, "");
-						//
-					} // i
-						//
+					testAndRun(i < size - 1, () -> info(LOG, ""));
+					//
 				} // for
 					//
 			} // try
@@ -194,6 +190,12 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static void testAndRun(final boolean condition, final Runnable runnable) {
+		if (condition && runnable != null) {
+			runnable.run();
+		}
 	}
 
 	private static Document parse(final DocumentBuilder instance, final File file) throws SAXException, IOException {

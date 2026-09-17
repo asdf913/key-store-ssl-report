@@ -66,7 +66,7 @@ public class KeyStoreSslReportTest {
 	private static Method METHOD_GET_NAME, METHOD_GET_CERTIFICATE, METHOD_LOAD, METHOD_IS_KEY_ENTRY,
 			METHOD_IS_CERTIFICATE_ENTRY, METHOD_IS_VALID, METHOD_FORMAT, METHOD_TO_CHAR_ARRAY,
 			METHOD_LONGEST_COMMON_SUB_STRING, METHOD_SUBSTRACT, METHOD_GET_ABSOLUTE_PATH, METHOD_INFO2, METHOD_INFO3,
-			METHOD_ANY_MATCH, METHOD_NEW_DOCUMENT_BUILDER, METHOD_PARSE = null;
+			METHOD_ANY_MATCH, METHOD_NEW_DOCUMENT_BUILDER, METHOD_PARSE, METHOD_TEST_AND_RUN = null;
 
 	private static Class<?> CLASS_RESULT = null;
 
@@ -110,6 +110,8 @@ public class KeyStoreSslReportTest {
 				.setAccessible(true);
 		//
 		(METHOD_PARSE = clz.getDeclaredMethod("parse", DocumentBuilder.class, File.class)).setAccessible(true);
+		//
+		(METHOD_TEST_AND_RUN = clz.getDeclaredMethod("testAndRun", Boolean.TYPE, Runnable.class)).setAccessible(true);
 		//
 	}
 
@@ -709,6 +711,13 @@ public class KeyStoreSslReportTest {
 		Assert.assertNull(invoke(METHOD_PARSE, null, db, new File(".")));
 		//
 		Assert.assertNotNull(invoke(METHOD_PARSE, null, db, new File("pom.xml")));
+		//
+	}
+
+	@Test
+	public void testTestAndRun() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNull(invoke(METHOD_TEST_AND_RUN, null, Boolean.FALSE, null));
 		//
 	}
 
