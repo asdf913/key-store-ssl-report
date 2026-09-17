@@ -504,8 +504,6 @@ public class KeyStoreSslReportTest {
 							Arrays.equals(parameterTypes, new Class<?>[] { String.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "substract"),
 							Arrays.equals(parameterTypes, new Class<?>[] { Date.class, Date.class }))
-					|| Boolean.logicalAnd(Objects.equals(name, "newDocumentBuilder"),
-							Arrays.equals(parameterTypes, new Class<?>[] { DocumentBuilderFactory.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "perform"),
 							Arrays.equals(parameterTypes, new Class<?>[] { String.class, Map.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "perform2"),

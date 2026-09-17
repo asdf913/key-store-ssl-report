@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;	
+import java.util.stream.Stream;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -330,7 +330,21 @@ public class KeyStoreSslReport {
 
 	private static DocumentBuilder newDocumentBuilder(final DocumentBuilderFactory instance)
 			throws ParserConfigurationException {
-		return instance != null ? instance.newDocumentBuilder() : null;
+		//
+		if (instance == null) {
+			//
+			return null;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> size(x) == 1,
+				collect(filter(
+						stream(testAndApply(Objects::nonNull, getClass(instance), FieldUtils::getAllFieldsList, null)),
+						f -> Objects.equals(getName(f), "fSecurityManager")), Collectors.toList()),
+				x -> get(x, 0), null);
+		//
+		return field == null || Narcissus.getField(instance, field) != null ? instance.newDocumentBuilder() : null;
+		//
 	}
 
 	private static Object evaluate(final XPath instance, final String string, final Object object, final QName qName)
