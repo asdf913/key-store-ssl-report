@@ -322,7 +322,7 @@ public class KeyStoreSslReport {
 		//
 	}
 
-	private static void info(final Logger logger, final Result result) throws IOException {
+	private static void info(final Logger logger, final Result result) {
 		//
 		DateFormat df = null;
 		//
