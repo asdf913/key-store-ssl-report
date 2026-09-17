@@ -88,21 +88,11 @@ public class KeyStoreSslReport {
 			//
 			File file = testAndApply(Objects::nonNull, get(map, "config"), File::new, null);
 			//
-			if (file == null) {
+			final BooleanObject booleanObject = validate(file);
+			//
+			if (!BooleanUtils.toBooleanDefaultIfNull(booleanObject != null ? booleanObject.booleanValue : null, true)) {
 				//
-				error(LOG, "file is null");
-				//
-				return;
-				//
-			} else if (!exists(file)) {
-				//
-				error(LOG, file + " not exists");
-				//
-				return;
-				//
-			} else if (!file.isFile()) {
-				//
-				error(LOG, file + " is not a regular file");
+				error(LOG, Objects.toString(booleanObject != null ? booleanObject.object : null));
 				//
 				return;
 				//
@@ -181,6 +171,46 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static class BooleanObject {
+
+		private Boolean booleanValue;
+
+		private Object object;
+
+		private static BooleanObject of(final boolean booleanValue, final Object object) {
+			//
+			final BooleanObject instance = new BooleanObject();
+			//
+			instance.booleanValue = Boolean.valueOf(booleanValue);
+			//
+			instance.object = object;
+			//
+			return instance;
+			//
+		}
+
+	}
+
+	private static BooleanObject validate(final File file) {
+		//
+		if (file == null) {
+			//
+			return BooleanObject.of(false, "file is null");
+			//
+		} else if (!exists(file)) {
+			//
+			return BooleanObject.of(false, file + " not exists");
+			//
+		} else if (!file.isFile()) {
+			//
+			return BooleanObject.of(false, file + " is not a regular file");
+			//
+		} // if
+			//
+		return null;
+		//
 	}
 
 	private static List<Result> getResults(final KeyStore keyStore, final NodeList nodeList)
