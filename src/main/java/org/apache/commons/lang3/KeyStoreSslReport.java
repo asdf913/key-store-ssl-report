@@ -718,59 +718,69 @@ public class KeyStoreSslReport {
 
 	private static Map<String, String> toMap(final String... ss) {
 		//
-		String s = null;
-		//
 		Map<String, String> map = null;
 		//
-		Field field = null;
+		Entry<String, String> entry = null;
 		//
 		for (int i = 0; i < length(ss); i++) {
 			//
-			s = ArrayUtils.get(ss, i);
-			//
-			if (field == null) {
-				//
-				field = testAndApply(x -> size(x) == 1,
-						collect(filter(
-								stream(testAndApply(Objects::nonNull, getClass(s), FieldUtils::getAllFieldsList, null)),
-								f -> Objects.equals(getName(f), VALUE)), Collectors.toList()),
-						x -> get(x, 0), null);
-				//
-			} // if
-				//
-			if (s != null && field != null && Narcissus.getField(s, field) == null) {
+			if ((entry = toEntry(ArrayUtils.get(ss, i))) == null) {
 				//
 				continue;
 				//
 			} // if
 				//
-			if (Objects.equals(s = ArrayUtils.get(ss, i), "=")) {
-				//
-				put(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), "", "");
-				//
-			} else if (s != null && s.length() == 2 && s.charAt(0) == '=') {
-				//
-				put(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), "", s.substring(1, s.length()));
-				//
-			} else if (s != null && s.length() == 2 && s.charAt(s.length() - 1) == '=') {
-				//
-				put(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), s.substring(0, s.length() - 1), "");
-				//
-			} else if (s != null && s.indexOf('=') >= 0 && s.indexOf('=') == s.lastIndexOf('=')) {
-				//
-				put(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), StringUtils.substringBefore(s, '='),
-						StringUtils.substringAfter(s, '='));
-				//
-			} else if (s != null && s.length() > 2 && s.indexOf('=') != s.lastIndexOf('=')) {
-				//
-				put(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), StringUtils.substring(s, 0, s.indexOf('=')),
-						StringUtils.substring(s, s.indexOf('=') + 1));
-				//
-			} // if
-				//
+			put(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), getKey(entry), getValue(entry));
+			//
 		} // for
 			//
 		return map;
+		//
+	}
+
+	private static Entry<String, String> toEntry(final String string) {
+		//
+		Field field = null;
+		//
+		if (field == null) {
+			//
+			field = testAndApply(x -> size(x) == 1, collect(
+					filter(stream(testAndApply(Objects::nonNull, getClass(string), FieldUtils::getAllFieldsList, null)),
+							f -> Objects.equals(getName(f), VALUE)),
+					Collectors.toList()), x -> get(x, 0), null);
+			//
+		} // if
+			//
+		if (string != null && field != null && Narcissus.getField(string, field) == null) {
+			//
+			return null;
+			//
+		} // if
+			//
+		if (Objects.equals(string, "=")) {
+			//
+			return Pair.of("", "");
+			//
+		} else if (string != null && string.length() == 2 && string.charAt(0) == '=') {
+			//
+			return Pair.of("", string.substring(1, string.length()));
+			//
+		} else if (string != null && string.length() == 2 && string.charAt(string.length() - 1) == '=') {
+			//
+			return Pair.of(string.substring(0, string.length() - 1), "");
+			//
+		} else if (string != null && string.indexOf('=') >= 0 && string.indexOf('=') == string.lastIndexOf('=')) {
+			//
+			return Pair.of(StringUtils.substringBefore(string, '='), StringUtils.substringAfter(string, '='));
+			//
+		} else if (string != null && string.length() > 2 && string.indexOf('=') != string.lastIndexOf('=')) {
+			//
+			return Pair.of(StringUtils.substring(string, 0, string.indexOf('=')),
+					StringUtils.substring(string, string.indexOf('=') + 1));
+			//
+		} // if
+			//
+		return null;
 		//
 	}
 
