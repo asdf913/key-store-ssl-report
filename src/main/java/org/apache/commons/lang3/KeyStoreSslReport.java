@@ -162,7 +162,7 @@ public class KeyStoreSslReport {
 				//
 				final Long difference = result != null ? result.difference : null;
 				//
-				info(LOG, "File    {}={}", longValue(difference, 0) > 0 ? StringUtils.repeat(' ', 2) : "",
+				info(LOG, "File    {}={}", iif(longValue(difference, 0) > 0, StringUtils.repeat(' ', 2), ""),
 						getAbsolutePath(file));
 				//
 				info(LOG, result);
@@ -171,6 +171,10 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static <T> T iif(final boolean condition, final T valueTrue, final T valueFalse) {
+		return condition ? valueTrue : valueFalse;
 	}
 
 	private static long longValue(final Number instance, final long defaultValue) {
@@ -328,7 +332,7 @@ public class KeyStoreSslReport {
 		//
 		final Long difference = result != null ? result.difference : null;
 		//
-		final String padding = longValue(difference, 0) > 0 ? StringUtils.repeat(' ', 2) : "";
+		final String padding = iif(longValue(difference, 0) > 0, StringUtils.repeat(' ', 2), "");
 		//
 		info(logger, "URL     {}={}", padding, StringUtils.defaultString(result != null ? result.url : null));
 		//

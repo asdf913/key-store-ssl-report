@@ -470,7 +470,9 @@ public class KeyStoreSslReportTest {
 					|| Boolean.logicalAnd(Objects.equals(name, "perform"),
 							Arrays.equals(parameterTypes, new Class<?>[] { String.class, Map.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "perform2"),
-							Arrays.equals(parameterTypes, new Class<?>[] { KeyStore.class, String.class }))) {
+							Arrays.equals(parameterTypes, new Class<?>[] { KeyStore.class, String.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "iif"), Arrays.equals(parameterTypes,
+							new Class<?>[] { Boolean.TYPE, Object.class, Object.class }))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
