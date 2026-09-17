@@ -107,8 +107,8 @@ public class KeyStoreSslReport {
 				//
 			final ContentInfo ci = new ContentInfoUtil().findMatch(file);
 			//
-			if (ci == null || (!Objects.equals(ci.getMessage(), "exported SGML document text")
-					&& !Objects.equals(ci.getMimeType(), "application/xml"))) {
+			if (ci == null || Boolean.logicalAnd(!Objects.equals(ci.getMessage(), "exported SGML document text"),
+					!Objects.equals(ci.getMimeType(), "application/xml"))) {
 				//
 				error(LOG, file + " is not a XML file");
 				//
