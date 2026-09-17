@@ -54,6 +54,7 @@ import org.testng.annotations.Test;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Predicates;
 import com.google.common.reflect.Reflection;
 
 import io.github.toolfactory.narcissus.Narcissus;
@@ -62,8 +63,8 @@ public class KeyStoreSslReportTest {
 
 	private static Method METHOD_GET_NAME, METHOD_GET_CERTIFICATE, METHOD_LOAD, METHOD_IS_KEY_ENTRY,
 			METHOD_IS_CERTIFICATE_ENTRY, METHOD_IS_VALID, METHOD_FORMAT, METHOD_TO_CHAR_ARRAY,
-			METHOD_LONGEST_COMMON_SUB_STRING, METHOD_SUBSTRACT, METHOD_GET_ABSOLUTE_PATH, METHOD_INFO2,
-			METHOD_INFO3 = null;
+			METHOD_LONGEST_COMMON_SUB_STRING, METHOD_SUBSTRACT, METHOD_GET_ABSOLUTE_PATH, METHOD_INFO2, METHOD_INFO3,
+			METHOD_ANY_MATCH = null;
 
 	private static Class<?> CLASS_RESULT = null;
 
@@ -101,13 +102,13 @@ public class KeyStoreSslReportTest {
 		(METHOD_INFO2 = clz.getDeclaredMethod("info", Logger.class,
 				CLASS_RESULT = Class.forName("org.apache.commons.lang3.KeyStoreSslReport$Result"))).setAccessible(true);
 		//
-		(METHOD_INFO3 = clz.getDeclaredMethod("info", Logger.class, String.class, Map.class)).setAccessible(true);
+		(METHOD_ANY_MATCH = clz.getDeclaredMethod("anyMatch", Stream.class, Predicate.class)).setAccessible(true);
 		//
 	}
 
 	private static class IH implements InvocationHandler {
 
-		private Boolean test, containsKey, hasMoreElements;
+		private Boolean test, containsKey, hasMoreElements, add, anyMatch;
 
 		private Integer size;
 
@@ -131,6 +132,10 @@ public class KeyStoreSslReportTest {
 				} else if (Objects.equals(name, "stream")) {
 					//
 					return null;
+					//
+				} else if (Objects.equals(name, "add")) {
+					//
+					return add;
 					//
 				} // if
 					//
@@ -162,6 +167,10 @@ public class KeyStoreSslReportTest {
 				if (contains(Arrays.asList("collect", "filter", "max"), name)) {
 					//
 					return null;
+					//
+				} else if (Objects.equals(name, "anyMatch")) {
+					//
+					return anyMatch;
 					//
 				} // if
 					//
@@ -640,4 +649,16 @@ public class KeyStoreSslReportTest {
 				Narcissus.allocateInstance(Class.forName("sun.security.x509.X509CertImpl")))));
 		//
 	}
+
+	@Test
+	public void testAnyMatch() throws IllegalAccessException, InvocationTargetException {
+		//
+		final Stream<?> stream = Stream.empty();
+		//
+		Assert.assertEquals(invoke(METHOD_ANY_MATCH, null, stream, null), Boolean.FALSE);
+		//
+		Assert.assertEquals(invoke(METHOD_ANY_MATCH, null, stream, Predicates.alwaysTrue()), Boolean.TRUE);
+		//
+	}
+
 }

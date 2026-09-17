@@ -21,6 +21,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -126,24 +127,48 @@ public class KeyStoreSslReport {
 			//
 			final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			//
-			info(LOG, "File      ={}", getAbsolutePath(file = testAndApply(Objects::nonNull,
-					Objects.toString(evaluate(xp, "/*/keyStore", document)), File::new, null)));
-			//
-			info(LOG, "");
-			//
-			try (final InputStream is = testAndApply(x -> exists(x), file, FileInputStream::new, null)) {
+			try (final InputStream is = testAndApply(
+					x -> exists(x), file = testAndApply(Objects::nonNull,
+							Objects.toString(evaluate(xp, "/*/keyStore", document)), File::new, null),
+					FileInputStream::new, null)) {
 				//
 				load(keyStore, is, toCharArray(get(map, Objects.toString(evaluate(xp, "/*/password", document)))));
 				//
 				final NodeList nodeList = cast(NodeList.class,
 						evaluate(xp, "/*/urls/url", document, XPathConstants.NODESET));
 				//
+				List<Result> results = null;
+				//
 				for (int i = 0; nodeList != null && i < nodeList.getLength(); i++) {
 					//
-					perform(keyStore, getTextContent(nodeList.item(i)));
+					add(results = ObjectUtils.getIfNull(results, ArrayList::new),
+							perform2(keyStore, getTextContent(nodeList.item(i))));
 					//
-					info(LOG, "");
+				} // for
 					//
+				anyMatch(stream(results), x -> x != null && longValue(x.difference, 0) > 0);
+				//
+				for (int i = 0; results != null && i < results.size(); i++) {
+					//
+					if (i == 0) {
+						//
+						info(LOG, "File    {}={}",
+								iif(anyMatch(stream(results), x -> x != null && longValue(x.difference, 0) > 0),
+										StringUtils.repeat(' ', 2), ""),
+								getAbsolutePath(file));
+						//
+						info(LOG, "");
+						//
+					} // if
+						//
+					info(LOG, results.get(i));
+					//
+					if (i < results.size() - 1) {
+						//
+						info(LOG, "");
+						//
+					} // i
+						//
 				} // for
 					//
 			} // try
@@ -171,6 +196,16 @@ public class KeyStoreSslReport {
 				//
 		} // if
 			//
+	}
+
+	private static <T> boolean anyMatch(final Stream<T> instance, final Predicate<? super T> predicate) {
+		return instance != null && predicate != null && instance.anyMatch(predicate);
+	}
+
+	private static <E> void add(final Collection<E> instance, final E item) {
+		if (instance != null) {
+			instance.add(item);
+		}
 	}
 
 	private static <T> T iif(final boolean condition, final T valueTrue, final T valueFalse) {
@@ -240,55 +275,6 @@ public class KeyStoreSslReport {
 		return instance != null && instance.containsKey(key);
 	}
 
-	private static void perform(final KeyStore keyStore, final String url) throws KeyStoreException, IOException {
-		//
-		String alias, lcs = null;
-		//
-		Certificate certificate = null;
-		//
-		X509Certificate x509Certificate = null;
-		//
-		Date notAfter = null;
-		//
-		final Field field = testAndApply(x -> size(x) == 1,
-				collect(filter(
-						stream(testAndApply(Objects::nonNull, getClass(url), FieldUtils::getAllFieldsList, null)),
-						f -> Objects.equals(getName(f), VALUE)), Collectors.toList()),
-				x -> get(x, 0), null);
-		//
-		if (url == null || (field != null && Narcissus.getField(url, field) != null)) {
-			//
-			info(LOG, "URL       ={}", url);
-			//
-		} // if
-			//
-		Map<String, X509Certificate> map = null;
-		//
-		final Enumeration<String> aliases = aliases(keyStore);
-		//
-		while (hasMoreElements(aliases)) {
-			//
-			if ((isCertificateEntry(keyStore, alias = nextElement(aliases)) || isKeyEntry(keyStore, alias))
-					&& (certificate = getCertificate(keyStore, alias)) instanceof X509Certificate
-					&& (x509Certificate = (X509Certificate) certificate) != null
-					&& isValid(DomainValidator.getInstance(),
-							lcs = longestCommonSubstring(getName(getSubjectX500Principal(x509Certificate)), url))
-					&& ((notAfter = getNotAfter(get(map = ObjectUtils.getIfNull(map, LinkedHashMap::new), lcs))) == null
-							|| ObjectUtils.compare(getNotAfter(x509Certificate), notAfter) > 0)) {
-				//
-				put(map, lcs, x509Certificate);
-				//
-			} // if
-				//
-		} // while
-			//
-		final String longest = orElse(max(stream(keySet(map)), Comparator.comparingInt(StringUtils::length)), "");
-		//
-		info(LOG, url, collect(filter(stream(entrySet(map)), x -> Objects.equals(getKey(x), longest)),
-				Collectors.toMap(x -> getKey(x), x -> getValue(x))));
-		//
-	}
-
 	private static Result perform2(final KeyStore keyStore, final String url) throws KeyStoreException, IOException {
 		//
 		String alias, lcs = null;
@@ -353,48 +339,6 @@ public class KeyStoreSslReport {
 					DurationFormatUtils.formatDurationWords(longValue(difference, 0), false, false));
 			//
 		} // if
-			//
-	}
-
-	private static void info(final Logger logger, final String url, final Map<String, X509Certificate> map)
-			throws IOException {
-		//
-		if (entrySet(map) == null) {
-			//
-			return;
-			//
-		} // if
-			//
-		X509Certificate x509Certificate = null;
-		//
-		DateFormat df = null;
-		//
-		Entry<String, Date> temp = null;
-		//
-		Long difference = null;
-		//
-		for (final Entry<String, X509Certificate> entry : entrySet(map)) {
-			//
-			if ((x509Certificate = getValue(entry)) == null) {
-				//
-				continue;
-				//
-			} // if
-				//
-			info(logger, "KeyStore  ={} {} ", getKey(entry),
-					format(df = ObjectUtils.getIfNull(df, () -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")),
-							getNotAfter(x509Certificate)));
-			//
-			info(logger, "HTTPS     ={} {}", getKey(temp = getEntry(url)), format(df, getValue(temp)));
-			//
-			if (longValue(difference = substract(getValue(temp), getNotAfter(x509Certificate)), 0) > 0) {
-				//
-				info(logger, "Difference={}",
-						DurationFormatUtils.formatDurationWords(longValue(difference, 0), false, false));
-				//
-			} // if
-				//
-		} // for
 			//
 	}
 
